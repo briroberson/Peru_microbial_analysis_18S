@@ -51,24 +51,24 @@ library(emmeans)
 ### 1a. Metadata and elevation and slope/aspect
 #the metadata
 
-metadata<-readr::read_tsv("F:\\Research\\18S_Soil\\18sformatted_metadata.tsv")
+metadata<-readr::read_tsv("18sformatted_metadata.tsv")
 #this is the elevation file
-waypoints<- read.csv("F:\\Research\\waypoints.csv")
+waypoints<- read.csv("waypoints.csv")
 #slope and aspect file
-slope_aspect<- read.csv("F:\\Research\\18S_Soil\\latrine_geog_info.csv")
+slope_aspect<- read.csv("latrine_geog_info.csv")
 
 ### 1b. Other files, loaded into a phyloseq
 # Load Other Data ----
 
 #load it into a phyloseq object
 #it wasn't loading the sample variables correctly so I had to open the metadata as an excel sheet and 
-#just resave it as a tsv so it doesn't cut off the column names. I also added NAs in the cells for the pos/neg
+#just re-save it as a tsv so it doesn't cut off the column names. I also added NAs in the cells for the pos/neg
 #controls that were initially blank. this is just a note and only needs to be addressed if a future
 #metadata file is used and chops off the header names
-phy <- qza_to_phyloseq("F:\\Research\\18S_Soil\\18sPeru_table.qza", 
-                       "F:\\Research\\18S_Soil\\18sPeru_rooted-tree.qza", 
-                       "F:\\Research\\18S_Soil\\18sPeru_taxonomy.qza",
-                       "F:\\Research\\18S_Soil\\18sformatted_metadata.tsv")
+phy <- qza_to_phyloseq("18S_0326_qiime/Peru_18S_0326_table.qza", 
+                       "18S_0326_qiime/Peru_18S_0326_rooted-tree.qza", 
+                       "18S_0326_qiime/Peru_18S_0326_taxonomy.qza",
+                       "18sformatted_metadata.tsv")
 #check that metadata didn't chop off names using sample_variables(phy). this should be the header names, not data
 sample_variables(phy)
 
