@@ -405,7 +405,7 @@ names(metadata_wet)
 Wel_mean<-mean(metadata_wet$elevation)
 Wel_sd<-sd(metadata_wet$elevation)
 #to calculate an elevation's value on the scaled scale, subtract the mean and divide by the sd
-(5100-Wel_mean)/Wel_sd
+# (5100-Wel_mean)/Wel_sd
 
 #to filter into LIA and RGM 
 metadata_wet_LIA <- metadata_wet %>%
@@ -442,6 +442,7 @@ Anova(wet_richRGMw)
 m_wet_rich<-lmer(Observed~treatment*soilAge+(1|latrine_trt_month)+(1|latrine), data=metadata_wet)
 summary(m_wet_rich)
 Anova(m_wet_rich)
+ICtab(m_wet_richNB, m_wet_rich)
 
 #compare to soil Age null model. this tests if having soil age at all in the model makes it better
 m_wet_rich_nullS<- glmer.nb(Observed~treatment*elevation_sc+(1|latrine_trt_month)+(1|latrine), data=metadata_wet)
@@ -466,6 +467,7 @@ qqnorm(residuals(m_wet_shan_div)) #checking normality
 m_wet_shan<-lmer(Shannon~treatment*soilAge+(1|latrine_trt_month)+(1|latrine), data=metadata_wet)
 summary(m_wet_shan)
 Anova(m_wet_shan)
+ICtab(m_wet_shan, m_wet_shan_div)
 
 #compare to soil Age null model
 m_wet_shan_nullS<- lmer(Shannon~treatment*elevation_sc+(1|latrine_trt_month)+(1|latrine), data=metadata_wet)
@@ -494,7 +496,12 @@ m_wet_simp_nullI<- lmer(InvSimpson~treatment*elevation_sc+soilAge+(1|latrine_trt
 lrtest(m_wet_simp, m_wet_simp_nullI)
 
 
-
+### Pielou evenness ----
+#logit transform Pielou to use a linear model with it
+m_wet_pie<- lmer(logit(Pielou)~treatment*soilAge+elevation_sc*treatment+(1|latrine_trt_month)+(1|latrine), data=metadata_wet)
+summary(m_wet_pie)
+Anova(m_wet_pie, type='III')
+qqnorm(residuals(m_wet_pie))
 
 
 
