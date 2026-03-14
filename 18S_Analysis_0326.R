@@ -337,12 +337,12 @@ metadata_filt<-metadata %>%
   filter(!is.na(Shannon))
 
 # #calculate all richness
-all_richness<- estimate_richness(filt_rare_phy, measures='Observed')
+#all_richness<- estimate_richness(filt_rare_phy, measures='Observed')
 # #add sample names
-all_richness$`SampleID`<- row.names(all_richness)
+#all_richness$`SampleID`<- row.names(all_richness)
 # 
 # #for some reason it added X to the beginning of the sample names so I removed it here:
-all_richness$`SampleID`<-sub('.', '', all_richness$`SampleID`)
+#all_richness$`SampleID`<-sub('.', '', all_richness$`SampleID`)
 
 #doesn't like non-integers from rarefaction averaging, so calc richness summing otu columns instead: 
 otu_mat <- as(otu_table(filt_rare_phy), "matrix") 
@@ -362,7 +362,10 @@ metadata_filt<- metadata_filt %>%
   left_join(all_simpson, by='SampleID')
 
 # all Pielou evenness
-metadata_filt$Pielou<- metadata_filt$Shannon/ log()
+overall_S <- sum(rowSums(otu_mat) > 0) #calc total number of ASVs
+overall_S
+metadata_filt$Pielou<- metadata_filt$Shannon/ log(overall_S)
+
 
 #add elevation
 #format latrine names
