@@ -278,19 +278,31 @@ for (i in 1:length(sample_id) ){
 }
 average_count_df_100 <- do.call(cbind, average_counts_100)
 
-write.csv(x=average_count_df_100, file="D:\\Soil\\16S\\100rep_averaged_OTUtable.csv")
+write.csv(x=average_count_df_100, file="100rep_averaged_OTUtable_18S.csv")
 
 
+######## do some checks
+#check that they all have the rarefied number of ASVs
+colSums(average_count_df_100)
 
+#is this close to the number for the whole data frame?
+sum(iter_list_100[[1]]$`99`!=0)
+sum(average_count_df_100$`99` !=0)
+#relatively close
+#not exact because there could be asvs not present here that are present in other iterations
 
+#add to phyloseq
+mirl_phyloseq <- final_filtered_phy
+mirl_phyloseq@otu_table@.Data <- as.matrix(average_count_df_100)
 
+rowSums(mirl_phyloseq@otu_table)==rowSums(average_count_df_100)  #should print a bunch of "TRUE"
 
-
-
-
-#compare the two phyloseqs just to see and confirm that the expected number of samples were dropped
+#compare the two phyloseqs just to see and confirm that the expected number of samples are present
 final_filtered_phy
-filt_rare_phy
+mirl_phyloseq
+
+#save to final phyloseq name used for analyses 
+filt_rare_phy<- mirl_phyloseq
 
 
 # Final phyloseq (filtered and rarefied) ----
@@ -300,19 +312,6 @@ filt_rare_phy
 
 saveRDS(filt_rare_phy, file="filt_rare_phy_18s.rds") #use whatever file path for where you want to save it
 filt_rare_phy<-readRDS("filt_rare_phy_18s.rds")
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -344,7 +343,12 @@ all_richness$`SampleID`<- row.names(all_richness)
 # 
 # #for some reason it added X to the beginning of the sample names so I removed it here:
 all_richness$`SampleID`<-sub('.', '', all_richness$`SampleID`)
-# 
+
+#doesn't like non-integers from rarefaction averaging, so calc richness summing otu columns instead: 
+otu_mat <- as(otu_table(filt_rare_phy), "matrix") 
+all_richness_counts <- colSums(otu_mat > 0)
+all_richness <- data.frame(SampleID = colnames(otu_mat), Observed = all_richness_counts)
+
 # #merge with metadata
 metadata_filt<- metadata_filt %>% 
   left_join(all_richness, by='SampleID') %>% 
@@ -356,6 +360,9 @@ all_simpson$`SampleID`<- row.names(all_simpson)
 
 metadata_filt<- metadata_filt %>% 
   left_join(all_simpson, by='SampleID')
+
+# all Pielou evenness
+metadata_filt$Pielou<- metadata_filt$Shannon/ log()
 
 #add elevation
 #format latrine names
