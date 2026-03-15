@@ -382,8 +382,8 @@ metadata_filt<- metadata_filt %>%
 
 #also make an elevation reference column that is elevation from a certain point
 min(metadata_filt$elevation)
-metadata_filt$elevation_ref<- (metadata_filt$elevation-5100)
-#instead of true elevation, this is elevation from 5100m
+metadata_filt$elevation_ref<- (metadata_filt$elevation-5111)
+#instead of true elevation, this is elevation from ~5100m
 
 #format slope and aspect data to be merged
 slope_aspect$latrine<- slope_aspect$Latrine
@@ -662,8 +662,9 @@ metadata_factored$trt_month<- as.factor(metadata_factored$trt_month)
 metadata_factored$trt_soilAge<- as.factor(metadata_factored$trt_soilAge)
 
 ## filter out rep 2
-filt_rare_rep2 <- subset_samples(filt_rare_phy, replicate==1 |row.names(filt_rare_phy@sam_data) %in% c('10','14') )
+filt_rare_rep2 <- subset_samples(filt_rare_phy, replicate==1 |row.names(filt_rare_phy@sam_data) %in% c('10') )
 #change to include samples dropped during rarefy
+sample_names(filt_rare_rep2) #check
 
 #### make a dataframe that has the original and new asv names for convenience
 ## the original names are a random long string of characters so this makes them easier
