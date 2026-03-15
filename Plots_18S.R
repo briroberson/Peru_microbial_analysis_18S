@@ -258,7 +258,16 @@ simpscor<- spscorLIA[simpLIA_asv,]
 simperLIA_taxa<-simperLIA_taxa[row.names(simpscor),]
 
 # make a list that contains the lowest taxanomic assignment for each of the top 10
-simpLIA_plottaxa<- c('Solirubrobacteraceae','Xanthobacteraceae','Pedobacter','Sphingomonadaceae','Micrococcaceae','Conexibacter','Ellin6055','Caulobacteraceae','Pedobacter','Eremiobacteria')
+simpLIA_plottaxa<- c('Annelida_X
+Annelida_XX','Turbellaria
+Rhabdocoela','Annelida_X
+Annelida_XX','Ochromonadales
+Ochromonadaceae', 'Unassigned', 'Annelida_X
+Annelida_XX','Olpidiales
+Olpidiaceae','Annelida_X
+Annelida_XX','Embryophyceae_X
+Embryophyceae_XX','Pezizomycotina
+Leotiomycetes')
 
 
 #make hulls
@@ -270,10 +279,10 @@ PCoALIA<-ggplot(metalia, aes(axis01, axis02)) +
   geom_polygon(data = micro.hullsLIA, 
                aes(colour = treatment, fill = treatment), alpha = 0.1, show.legend = F) +
   geom_point(size = 4, aes(color=treatment)) +
-#  geom_segment(data=simpscor, aes(x=0, xend=V1, y=0, yend=V2), arrow=arrow())+
- # geom_point(data=simpscor, aes(x=V1, y=V2), shape=3)+
- # annotate(geom="text", x=simpscor$V1, y=simpscor$V2, label=simpLIA_plottaxa,
-     #      color="black") +
+ geom_segment(data=simpscor, aes(x=0, xend=V1, y=0, yend=V2), arrow=arrow())+
+ geom_point(data=simpscor, aes(x=V1, y=V2), shape=3)+
+ annotate(geom="text", x=simpscor$V1, y=simpscor$V2, label=simpLIA_plottaxa,
+           color="black") +
   scale_color_manual(labels=c('Control', 'Latrine'), values=c('cyan3','purple3'))+
   scale_fill_manual(values=c('cyan3','purple3'))+
   xlab("PCoA 1") +
@@ -372,7 +381,7 @@ pcoaDrgm<-cmdscale(d=distance(filt_rare_RGM_dry, method='wunifrac'), eig=T)
 spscorDrgm<-as.data.frame(wascores(x = pcoaDrgm$points, w = tasvDrgm))
 simpscorDrgm<- spscorDrgm[simpDrgm_asv,]
 
-#order the taxa to match the coordiantes
+#order the taxa to match the coordinates
 simperDrgm_taxa<-simperDrgm_taxa[row.names(simpscorDrgm),]
 
 # make a list that contains the lowest taxanomic assignment for each of the top 10
