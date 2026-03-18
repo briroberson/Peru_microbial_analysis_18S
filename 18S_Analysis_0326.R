@@ -582,6 +582,12 @@ m_RGM_simp_nullI<- lmer(InvSimpson~treatment*elevation_sc+`month-collected`+(1|l
 lrtest(m_RGM_simp, m_RGM_simp_nullI)
 
 
+### Pielou evenness ----
+#logit transform Pielou to use a linear model with it
+m_RGM_pie<- lmer(logit(Pielou)~treatment*`month-collected`+elevation_sc*treatment+(1|latrine_trt_month)+(1|latrine), data = metadata_RGM)
+summary(m_RGM_pie)
+Anova(m_RGM_pie, type='III')
+qqnorm(residuals(m_RGM_pie))
 
 
 
@@ -611,6 +617,20 @@ Anova(m_dry_shan)
 m_dry_simp<- lmer(InvSimpson~treatment*elevation_sc+(1|latrine_trt_month)+(1|latrine), data=metaDryRGM_both)
 summary(m_dry_simp)
 Anova(m_dry_simp)
+
+
+### Pielou evenness ----
+#logit transform Pielou to use a linear model with it
+m_dry_pie<- lmer(logit(Pielou)~treatment*elevation_sc+(1|latrine_trt_month)+(1|latrine), data = metaDryRGM_both)
+summary(m_dry_pie)
+Anova(m_dry_pie, type='III')
+qqnorm(residuals(m_dry_pie))
+
+
+
+
+
+
 
 
 # Beta Diversity ----

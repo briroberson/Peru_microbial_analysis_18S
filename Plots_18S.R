@@ -66,19 +66,25 @@ ggplot(metadata_wet, aes(x=elevation, y=InvSimpson, color=treatment))+
 # RGM subset Richness----
 ggplot(metadata_RGM, aes(x=elevation, y=Observed, color=treatment))+
   geom_point()+
-  geom_smooth(method='lm')+
+  geom_smooth(method='lm')+ 
+  scale_color_manual(values=c('cyan3','purple3'))+
+  theme_bw()+
   labs(title='RGM Richness')
 
 # RGM subset Shannon----
 ggplot(metadata_RGM, aes(x=elevation, y=Shannon, color=treatment))+
   geom_point()+
   geom_smooth(method='lm')+
+  scale_color_manual(values=c('cyan3','purple3'))+
+  theme_bw()+
   labs(title='RGM Shannon')
 
 # RGM subset Inv Simpson----
 ggplot(metadata_RGM, aes(x=elevation, y=InvSimpson, color=treatment))+
   geom_point()+
   geom_smooth(method='lm')+
+  scale_color_manual(values=c('cyan3','purple3'))+
+  theme_bw()+
   labs(title='RGM Inv Simpson')
 
 
