@@ -425,7 +425,7 @@ metadata_filt<- metadata_filt %>%
 ### 4a. Calculate diversity for ASV level test
 # 
 # ### All data shannon
-all_shan_div<-estimate_richness(filt_rare_phy, measures='Shannon')
+all_shan_div<-estimate_richness(filt_rare_phy_18s, measures='Shannon')
 all_shan_div$`SampleID`<- row.names(all_shan_div)
 
 #merge with the metadata so we can run a model and filter out the stuff already filtered out
@@ -434,11 +434,11 @@ metadata_filt<-metadata %>%
   filter(!is.na(Shannon))
 
 #doesn't like non-integers from rarefaction averaging, so calc richness with vegan specnumber() instead
-otu_mat <- as(otu_table(filt_rare_phy), "matrix") 
-if(taxa_are_rows(filt_rare_phy)) {otu_mat <- t(otu_mat)} #transpose
+otu_mat <- as(otu_table(filt_rare_phy_18s), "matrix") 
+if(taxa_are_rows(filt_rare_phy_18s)) {otu_mat <- t(otu_mat)} #transpose
 
 richness <- specnumber(otu_mat) #calculate richness
-sample_ids <- sample_names(filt_rare_phy) #grab samp IDs
+sample_ids <- sample_names(filt_rare_phy_18s) #grab samp IDs
 all_richness <- data.frame(SampleID = sample_ids, Observed = richness)
 
 # #merge with metadata
@@ -690,7 +690,7 @@ metaDryRGM_both<-metaDryRGM_both %>%
   mutate(elevation_sc=scale(elevation))
 
 #richness
-m_dry_rich<- glmer(Observed~treatment*elevation_sc+(1|latrine_trt_month)+(1|latrine), data=metaDryRGM_both, family=poisson(link='log'))
+m_dry_rich<- lmer(Observed~treatment*elevation_sc+(1|latrine_trt_month)+(1|latrine), data=metaDryRGM_both)
 summary(m_dry_rich)
 Anova(m_dry_rich, type='III')
 
