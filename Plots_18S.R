@@ -61,7 +61,15 @@ ggplot(metadata_wet, aes(x=elevation, y=Shannon, color=treatment))+
 ggplot(metadata_wet, aes(x=elevation, y=InvSimpson, color=treatment))+
   geom_point()+
   geom_smooth(method='lm')+
+  scale_color_manual(values=c('cyan3','purple3'))+
   labs(title='Wet Inv Simpson')
+
+#Wet subset Pielou----
+ggplot(metadata_wet, aes(x=elevation, y=Pielou, color=treatment))+
+  geom_point()+
+  geom_smooth(method='lm')+
+  scale_color_manual(values=c('cyan3','purple3'))+
+  labs(title='Wet Pielou')
 
 # RGM subset Richness----
 ggplot(metadata_RGM, aes(x=elevation, y=Observed, color=treatment))+
@@ -87,6 +95,38 @@ ggplot(metadata_RGM, aes(x=elevation, y=InvSimpson, color=treatment))+
   theme_bw()+
   labs(title='RGM Inv Simpson')
 
+
+# RGM Dry Richness----
+ggplot(metaDryRGM_both, aes(x=elevation, y=Observed, color=treatment))+
+  geom_point()+
+  geom_smooth(method='lm')+ 
+  scale_color_manual(values=c('cyan3','purple3'))+
+  theme_bw()+
+  labs(title='RGM Dry Richness')
+
+# RGM Dry Shannon----
+ggplot(metaDryRGM_both, aes(x=elevation, y=Shannon, color=treatment))+
+  geom_point()+
+  geom_smooth(method='lm')+
+  scale_color_manual(values=c('cyan3','purple3'))+
+  theme_bw()+
+  labs(title='RGM Dry Shannon')
+
+# RGM Dry Inv Simpson----
+ggplot(metaDryRGM_both, aes(x=elevation, y=InvSimpson, color=treatment))+
+  geom_point()+
+  geom_smooth(method='lm')+
+  scale_color_manual(values=c('cyan3','purple3'))+
+  theme_bw()+
+  labs(title='RGM Dry Inv Simpson')
+
+# RGM Dry Pielou----
+ggplot(metaDryRGM_both, aes(x=elevation, y=InvSimpson, color=treatment))+
+  geom_point()+
+  geom_smooth(method='lm')+
+  scale_color_manual(values=c('cyan3','purple3'))+
+  theme_bw()+
+  labs(title='RGM Dry Pielou')
 
 
 
@@ -139,6 +179,16 @@ ggplot(metadata_wet, aes(treatment, InvSimpson)) +
   theme_bw() +
   facet_wrap(~soilAge)
 
+### Pielou ----
+ggplot(metadata_wet, aes(treatment, Pielou)) +
+  geom_boxplot(alpha = 0.5, aes(fill=treatment)) +
+  geom_point(size = 4, aes(color=elevation), alpha = .7) +
+  labs(x = NULL, y = "Pielou", title = "a) 18S Wet Season Alpha Diversity") +
+  scale_fill_manual(values=c('cyan3','purple3'))+
+  scale_color_gradient(low='lightgray', high='black')+
+  theme_bw() +
+  facet_wrap(~soilAge)
+
 
 ### RGM subset----
 ## Richness ----
@@ -176,8 +226,46 @@ ggplot(metadata_RGM, aes(treatment, InvSimpson)) +
 
 
 
+### RGM Dry----
+## Richness ----
+ggplot(metaDryRGM_both, aes(treatment, Observed)) +
+  geom_boxplot(alpha = 0.5, aes(fill=treatment)) +
+  geom_point(size = 4,aes(color=elevation), alpha = 0.5) +
+  labs(x = NULL, y = "ASV Richness", title = "a) 18S RGM Dry") +
+  scale_fill_manual(values=c('cyan3','purple3'))+
+  scale_color_gradient(low='lightgray', high='black')+
+  #scale_x_discrete(limits = rev(levels(meta16$Description))) +
+  theme_bw() 
 
+## Shannon ----
+ggplot(metaDryRGM_both, aes(treatment, Shannon)) +
+  geom_boxplot(alpha = 0.5, aes(fill=treatment)) +
+  geom_point(size = 4,aes(color=elevation), alpha = 0.5) +
+  labs(x = NULL, y = "Shannon", title = "a) 18S RGM Dry") +
+  scale_fill_manual(values=c('cyan3','purple3'))+
+  scale_color_gradient(low='lightgray', high='black')+
+  #scale_x_discrete(limits = rev(levels(meta16$Description))) +
+  theme_bw() 
 
+## Inv Simpson----
+ggplot(metaDryRGM_both, aes(treatment, InvSimpson)) +
+  geom_boxplot(alpha = 0.5, aes(fill=treatment)) +
+  geom_point(size = 4,aes(color=elevation), alpha = 0.5) +
+  labs(x = NULL, y = "Inverse Simpson", title = "a) 18S RGM Dry") +
+  scale_fill_manual(values=c('cyan3','purple3'))+
+  scale_color_gradient(low='lightgray', high='black')+
+  #scale_x_discrete(limits = rev(levels(meta16$Description))) +
+  theme_bw() 
+
+## Pielou ----
+ggplot(metaDryRGM_both, aes(treatment, Pielou)) +
+  geom_boxplot(alpha = 0.5, aes(fill=treatment)) +
+  geom_point(size = 4,aes(color=elevation), alpha = 0.5) +
+  labs(x = NULL, y = "Pielou", title = "a) 18S RGM Dry") +
+  scale_fill_manual(values=c('cyan3','purple3'))+
+  scale_color_gradient(low='lightgray', high='black')+
+  #scale_x_discrete(limits = rev(levels(meta16$Description))) +
+  theme_bw() 
 
 
 
@@ -409,10 +497,6 @@ PCoArgmD<-ggplot(metaDryRGM, aes(axis01, axis02)) +
   geom_polygon(data = micro.hullsRGMD, 
                aes(colour = treatment, fill = treatment), alpha = 0.1, show.legend = F) +
   geom_point(size = 4, aes(color=treatment)) +
- geom_point(data=simpscorDrgm, aes(x=V1, y=V2), shape=3)+
- geom_segment(data=simpscorDrgm, aes(x=0, xend=V1, y=0, yend=V2), arrow=arrow())+
-annotate(geom="text", x=simpscorDrgm$V1, y=simpscorDrgm$V2, label=simpDrgm_plottaxa,
-         color="black") +
   scale_color_manual(labels=c('Control', 'Latrine'), values=c('cyan3','purple3'))+
   scale_fill_manual(values=c('cyan3','purple3'))+
   xlab("PCoA 1") +
@@ -681,6 +765,92 @@ rgmDlab<-labels(dendrgmD)
 
 ###############heatmap----
 
+### plot ts heatmap code----
+#I had to change the code because the mutate_() function doesn't work anymore and R will
+#no longer ignore it and then it wasn't working so I had to remove a ~ that they had inthe code
+#but basically I had to manually make this function instead of using the mctoolsr one to make the heatmaps
+plot_ts_heatmap = function(tax_table, metadata_map, min_rel_abund, type_header,
+                           scale_by = 'all', custom_sample_order,
+                           rev_taxa = FALSE, custom_taxa_order, other_label,
+                           remove_other = FALSE,
+                           colors = c('blue', 'white', 'red')) {
+  # group all taxa lower than threshold into other
+  lt_thresh = tax_table[rowMeans(tax_table) < min_rel_abund,]
+  gt_thresh = tax_table[rowMeans(tax_table) >= min_rel_abund,]
+  Other = colSums(lt_thresh)
+  sumtax_mod = rbind(gt_thresh, Other = Other)
+  # remove other
+  if (remove_other) {
+    sumtax_mod = sumtax_mod[row.names(sumtax_mod) != 'Other',]
+  }
+  if (!missing(other_label)) {
+    row.names(sumtax_mod)[row.names(sumtax_mod) == 'Other'] = other_label
+  }
+  # get means
+  sumtax_smry = taxa_summary_by_sample_type(sumtax_mod, metadata_map,
+                                            type_header, smry_fun = mean)
+  sumtax_smry = round(sumtax_smry * 100, 1)
+  melted = reshape2::melt(sumtax_smry)
+  if (scale_by == 'sample_types') {
+    to_plot = dplyr::mutate(dplyr::group_by(melted, "Var2"),
+                            scaled =  scales::rescale(value))
+  } else if (scale_by == 'taxa') {
+    to_plot = dplyr::mutate(dplyr::group_by(melted, "Var1"),
+                            scaled =  scales::rescale(value))
+  } else if (scale_by == 'all') {
+    to_plot = dplyr::mutate(melted, scaled =  scales::rescale(value))
+  } else
+    stop("scale_by must be one of: 'sample_types', 'taxa' or 'all'.")
+  if (!missing(custom_sample_order)) {
+    to_plot$Var2 = factor(to_plot$Var2, levels = rev(custom_sample_order))
+  }
+  if (!missing(custom_taxa_order)) {
+    to_plot$Var1 = factor(to_plot$Var1, levels = custom_taxa_order)
+  }
+  # reverse order of taxa
+  if (rev_taxa) {
+    to_plot$Var1 = factor(to_plot$Var1, levels = rev(unique(to_plot$Var1)))
+  }
+  # plot
+  # https://learnr.wordpress.com/2010/01/26/ggplot2-quick-heatmap-plotting/
+  p = ggplot2::ggplot(to_plot, ggplot2::aes_string("Var1", "Var2", 
+                                                   fill = "scaled")) +
+    ggplot2::geom_tile(color = 'black', size = 0.25) +
+    ggplot2::scale_fill_gradientn(colours = colors,
+                                  values = c(
+                                    min(to_plot$scaled),
+                                    mean(to_plot$scaled),
+                                    max(to_plot$scaled)
+                                  )) +
+    ggplot2::xlab('') + ggplot2::ylab('') +
+    ggplot2::theme(
+      legend.position = 'none',
+      axis.ticks = ggplot2::element_blank(),
+      axis.text.x = ggplot2::element_text(
+        angle = 90,
+        hjust = 1, vjust = 0.25
+      ),
+      axis.text = ggplot2::element_text(color = 'gray20')
+    ) +
+    ggplot2::geom_text(data = to_plot, ggplot2::aes_string(label = "value"), 
+                       size = 3) +
+    ggplot2::scale_x_discrete(expand = c(0, 0)) +
+    ggplot2::scale_y_discrete(expand = c(0, 0))
+  p
+}
+
+#' @title Collapse taxonomy dataframe to character vector
+#' @description A quick way to get taxonomy strings for each taxon
+#' @param taxonomy_df The dataframe containing taxonomy as loaded by
+#'   \code{\link{load_taxa_table}}.
+#' @concept Taxonomy-based analyses
+#' @examples 
+#' collapse_taxonomy(fruits_veggies$taxonomy_loaded)
+collapse_taxonomy = function(taxonomy_df) {
+  apply(taxonomy_df, 1, function(x)
+    paste0(x, collapse = '; '))
+}
+
 #########lia----
 #glomerate by phylum
 glomL <- tax_glom(filt_lia2, taxrank = 'Phylum')
@@ -716,7 +886,7 @@ metalia$latrine_trt<- factor(metalia$latrine_trt, levels=LIAlab)
 png("F:\\Research\\Plots\\liaheat2.pdf", units = "in", width = 10, height = 5, res = 600) 
 
 dev.off()
-heatlia<-plot_ts_heatmap(Phy_relabLt, metalia, 0.01, "latrine_trt", colors=c('#e4daed', '#61298f')) +
+heatlia<-plot_ts_heatmap(Phy_relabLt, metalia, 0.01, "latrine_trt", colors=c('#fcfdbf','#b73779', '#403c3c')) +
   theme(axis.text.y = element_text(size = 12, hjust = 0,
                                    margin = margin(c(0,-1,0,0))),
         axis.text.x = element_text(size = 10, angle = 30, hjust = 1, vjust = 1,
@@ -769,7 +939,7 @@ metargmW$latrine_trt<- factor(metargmW$latrine_trt, levels=rgmWlab)
 
 
 #plot it
-heatrgmw<-plot_ts_heatmap(Phy_relabWt, metargmW, 0.01, "latrine_trt", colors=c('#e4daed','#61298f')) +
+heatrgmw<-plot_ts_heatmap(Phy_relabWt, metargmW, 0.01, "latrine_trt", colors=c('#fcfdbf','#b73779', '#403c3c')) +
   theme(axis.text.y = element_text(size = 12, hjust = 0,
                                     margin = margin(c(0,-1,0,0))),
         axis.text.x = element_text(size = 10, angle = 30, hjust = 1, vjust = 1,
@@ -820,7 +990,7 @@ metaDryRGM$latrine_trt<- factor(metaDryRGM$latrine_trt, levels=rgmDlab)
 
 
 #plot it
-plot_ts_heatmap(Phy_relabRt, metaDryRGM, 0.01, "latrine_trt", colors=c('#e4daed','#61298f')) +
+plot_ts_heatmap(Phy_relabRt, metaDryRGM, 0.01, "latrine_trt",colors=c('#fcfdbf','#b73779', '#403c3c') ) +
   theme(axis.text.y = element_text(size = 12, hjust = 0,
                                    margin = margin(c(0,-1,0,0))),
         axis.text.x = element_text(size = 10, angle = 30, hjust = 1, vjust = 1,
