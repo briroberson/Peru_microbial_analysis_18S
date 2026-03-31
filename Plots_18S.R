@@ -152,7 +152,7 @@ officer::add_slide() %>%
 officer::ph_with(fig_dml, ph_location()) %>%
   # export slide 
 base::print(
-  target = "F:\\Research\\Plots\\wetrich2.pptx")
+  target = "F:\\Research\\github\\Peru_microbial_analysis_18s\\18s_Plots.pptx")
 
 
 
@@ -311,15 +311,12 @@ wetbeta
 #export the plot to a powerpoint to edit
 fig_dml<- rvg::dml(ggobj = wetbeta)
 
-officer::read_pptx() %>%
+pres<-officer::read_pptx() %>%
   # add slide 
   officer::add_slide() %>%
   # specify object and location of object 
-  officer::ph_with(fig_dml, ph_location()) %>%
-  # export slide 
-  base::print(
-    target = "F:\\Research\\Plots\\wetbeta2.pptx") #specify file path. powerpoint should not be made already, this makes it for you
-
+  officer::ph_with(fig_dml, ph_location())
+print(pres, target="F:\\Research\\github\\Peru_microbial_analysis_18s\\18s_Plots.pptx")
 
 #the geom_segment code is used to add arrows to the plot. currently, it is plotting all
 # asvs (the whole spscorW dataframe). to plot specific ones, you can subset the spscorW data frame

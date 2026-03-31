@@ -511,6 +511,7 @@ m_wet_rich<- lmer(Observed~treatment*soilAge+elevation_sc*treatment+(1|latrine_t
 summary(m_wet_rich)
 Anova(m_wet_rich, type='III')
 emmeans(m_wet_rich, pairwise~treatment*soilAge)
+qqnorm(residuals(m_wet_rich))
 
 #use exp to backtransform bc on log scale
 
@@ -1460,7 +1461,7 @@ rgmWetT_prim<-rgmWetTreatmentDA$res
 
 #save it as an rds file
 saveRDS(rgmWetT_prim, file='rgmWetT_prim.rds')
-rgmWetT_prim<-readRDS('rgmWetT_prim.rds')
+rgmWetT_prim<-readRDS('rgmWetT_prim.rds') #this is the BH one
 
 #filter for what's significant
 rgmWetTSig<-rgmWetT_prim %>% 
@@ -1490,13 +1491,14 @@ fig_rgmWetT = rgmWetT_DAplot %>%
                 width = 0.2, position = position_dodge(0.05), color = "black") + 
   labs(x = NULL, y = "Log fold change", 
        title = "Log fold changes") + 
-  scale_fill_discrete(name = NULL) +
+  scale_fill_manual(values=c('purple3', 'cyan3'), name=NULL, labels=c('Positive LFC (more in latrine)','Negative LFC (more in control)'))+
   scale_color_discrete(name = NULL) +
   theme_bw() + 
   theme(plot.title = element_text(hjust = 0.5),
         panel.grid.minor.y = element_blank(),
         axis.text.x= element_text(hjust=1, angle=45))
 fig_rgmWetT
+
 
 #do the test at the phylum level
 rgmWetTDA_phylum<-ancombc2(data = rgmW_rep2_phy, tax_level = "Phylum",
