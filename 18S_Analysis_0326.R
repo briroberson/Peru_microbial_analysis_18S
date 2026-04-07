@@ -148,6 +148,9 @@ pruned_filtered_phy <- subset_taxa(pruned_filtered_phy, !(Kingdom %in% c("Archae
 #exclude vertebrates (family Craniata)
 pruned_filtered_phy <- subset_taxa(pruned_filtered_phy, !(Family %in% c("Craniata")))
 
+#remove cephalapods
+pruned_filtered_phy <- subset_taxa(pruned_filtered_phy, !(Genus %in% c('Cephalopoda')))
+
 #remove L62, 83, and 94
 pruned_filtered_phy<-subset_samples(pruned_filtered_phy,  !latrine_trt_month %in% c("L83_latrine_wet", 'L83_control_wet', "L94_latrine_wet", 'L94_control_wet', "L62_control_wet", 'L62_latrine_wet'))
 

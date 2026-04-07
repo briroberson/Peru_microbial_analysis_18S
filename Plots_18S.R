@@ -145,13 +145,15 @@ wetrich
 #export the plot to a powerpoint to edit
 fig_dml<- rvg::dml(ggobj = wetrich)
 
-pres<-officer::read_pptx("F:\\Research\\github\\Peru_microbial_analysis_18s\\18s_Plots.pptx") %>%
+officer::read_pptx() %>%
   # add slide 
-officer::add_slide() %>%
+  officer::add_slide() %>%
   # specify object and location of object 
-officer::ph_with(fig_dml, ph_location())
+  officer::ph_with(fig_dml, ph_location()) %>%
+  # export slide 
+  base::print(
+    target = "F:\\Research\\github\\Peru_microbial_analysis_18s\\18s_ASVPlots.pptx")
 
-print(pres, target="F:\\Research\\github\\Peru_microbial_analysis_18s\\18s_Plots.pptx")
 
 
 
@@ -296,7 +298,7 @@ wetbeta<-ggplot(metadata_wetF, aes(axis01, axis02)) +
   geom_polygon(data = micro.hullsW, 
                aes(colour = trt_soilAge, fill = trt_soilAge), alpha = 0.1, show.legend = F) +
  # geom_segment(aes(x=0, xend=V1, y=0, yend=V2), data=spscorW, arrow=arrow())+
-  geom_point(size = 3, aes(colour = trt_soilAge)) +
+  geom_point(size = 2, aes(colour = trt_soilAge)) +
   scale_color_manual(labels=c('LIA Control','RGM Control','LIA Latrine','RGM Latrine'),
                        values=c('cyan4', 'cyan2', 'purple4', 'purple1'))+
   xlab("PCoA 1") +
@@ -308,13 +310,13 @@ wetbeta
 #export the plot to a powerpoint to edit
 fig_dml<- rvg::dml(ggobj = wetbeta)
 
-pres<-officer::read_pptx("F:\\Research\\github\\Peru_microbial_analysis_18s\\18s_Plots.pptx") %>%
+pres<-officer::read_pptx("F:\\Research\\github\\Peru_microbial_analysis_18s\\18s_ASVPlots.pptx") %>%
   # add slide 
   officer::add_slide() %>%
   # specify object and location of object 
   officer::ph_with(fig_dml, ph_location())
 
-print(pres, target="F:\\Research\\github\\Peru_microbial_analysis_18s\\18s_Plots.pptx")
+print(pres, target="F:\\Research\\github\\Peru_microbial_analysis_18s\\18s_ASVPlots.pptx")
 
 #the geom_segment code is used to add arrows to the plot. currently, it is plotting all
 # asvs (the whole spscorW dataframe). to plot specific ones, you can subset the spscorW data frame
