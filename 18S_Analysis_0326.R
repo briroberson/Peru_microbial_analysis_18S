@@ -1495,7 +1495,7 @@ fig_rgmWetT = rgmWetT_DAplot %>%
                 width = 0.2, position = position_dodge(0.05), color = "black") + 
   labs(x = NULL, y = "Log fold change", 
        title = "Log fold changes") + 
-  scale_fill_manual(values=c('purple3', 'cyan3'), name=NULL, labels=c('Positive LFC (more in latrine)','Negative LFC (more in control)'))+
+  #scale_fill_manual(values=c('purple3', 'cyan3'), name=NULL, labels=c('Positive LFC (more in latrine)','Negative LFC (more in control)'))+
   scale_color_discrete(name = NULL) +
   theme_bw() + 
   theme(plot.title = element_text(hjust = 0.5),

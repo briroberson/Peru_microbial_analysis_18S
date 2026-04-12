@@ -996,9 +996,35 @@ plot_ts_heatmap(Phy_relabRt, metaDryRGM, 0.01, "latrine_trt",colors=c('#fcfdbf',
   labs(title='RGM Dry')
 
 
+## stacked bar----
+#LIA using phylum
+#make taxa a row
+Phy_relabLt$taxa<- row.names(Phy_relabLt)
+#make long format
+Phy_relabLtlong<- pivot_longer(Phy_relabLt, names_to='sample', cols=1:8)
+
+#plot it
+ggplot(Phy_relabLtlong, aes(fill=taxa, y=value, x=sample)) + 
+  +     geom_bar(position="fill", stat="identity")
+
+#RGM Wet
+Phy_relabWt$taxa<- row.names(Phy_relabWt)
+#make long format
+Phy_relabWtlong<- pivot_longer(Phy_relabWt, names_to='sample', cols=1:38)
+
+#plot it
+ggplot(Phy_relabWtlong, aes(fill=taxa, y=value, x=sample)) + 
+       geom_bar(position="fill", stat="identity")
 
 
 
+#RGM dry
+Phy_relabRt$taxa<- row.names(Phy_relabRt)
+#make long format
+Phy_relabRtlong<- pivot_longer(Phy_relabRt, names_to='sample', cols=1:24)
 
+#plot it
+ggplot(Phy_relabRtlong, aes(fill=taxa, y=value, x=sample)) + 
+  geom_bar(position="fill", stat="identity")
 
 
