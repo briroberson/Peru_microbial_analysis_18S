@@ -154,7 +154,7 @@ officer::read_pptx() %>%
   base::print(
     target = "F:\\Research\\github\\Peru_microbial_analysis_18s\\18s_ASVPlots.pptx")
 
-#chromosequence richness 
+#chronosequence richness 
 ggplot(metadata_wet, aes(class, Observed)) +
   geom_boxplot(alpha = 0.5, aes(fill=treatment)) + #adds boxplot
   geom_point(size = 3, aes(color=elevation), alpha = .7) + #adds the individual points
@@ -177,7 +177,7 @@ ggplot(metadata_wet, aes(treatment, Shannon)) +
   theme+
   facet_wrap(~soilAge)
 
-#chromosequence shannon
+#chronosequence shannon
 ggplot(metadata_wet, aes(class, Shannon)) +
   geom_boxplot(alpha = 0.5, aes(fill=treatment)) + #adds boxplot
   geom_point(size = 3, aes(color=elevation), alpha = .7) + #adds the individual points
@@ -255,6 +255,19 @@ ggplot(metaDryRGM_both, aes(treatment, Observed)) +
   scale_color_gradient(low='lightgray', high='black')+
   #scale_x_discrete(limits = rev(levels(meta16$Description))) +
   theme_bw() 
+
+#chronosequence richness 
+metaDryRGM_both$class <- factor(metaDryRGM_both$class,
+                                levels = c("LIA-1931", "1931-1962", "1984-2024")) #reorder the classes chronologically 
+ggplot(metaDryRGM_both, aes(class, Observed)) +
+  geom_boxplot(alpha = 0.5, aes(fill=treatment)) + #adds boxplot
+  geom_point(size = 3, aes(color=elevation), alpha = .7) + #adds the individual points
+  labs(x = NULL, y = "ASV Richness", title = "a) 18S Alpha Diversity") +
+  scale_fill_manual(values=c('cyan3','purple3'), guide='none')+ #colors the two different treatments
+  scale_color_gradient(low='lightgray', high='black')+ #colors elevation so low values are lighter
+  theme_bw() +
+  theme+
+  facet_wrap(~treatment)
 
 ## Shannon ----
 ggplot(metaDryRGM_both, aes(treatment, Shannon)) +

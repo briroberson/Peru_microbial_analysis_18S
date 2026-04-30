@@ -643,8 +643,9 @@ lrtest(m_wet_simp, m_wet_simp_nullI)
 
 #make vicuna rai model
 m_wet_simp_rai<- lmer(InvSimpson~treatment*RAI_vicugna+(1|latrine_trt_month)+(1|latrine), data=metadata_wet)
-Anova(m_wet_simp_rai, type='III')
 summary(m_wet_simp_rai)
+Anova(m_wet_simp_rai, type='III')
+
 
 #chronosequence model
 m_wet_simp_chrono<- lmer(InvSimpson~treatment*class+(1|latrine_trt_month)+(1|latrine), data=metadata_wet)
@@ -665,8 +666,9 @@ emmeans(m_wet_pie, pairwise~treatment*soilAge)
 
 #make vicuna rai model
 m_wet_pie_rai<- lmer(Pielou~treatment*RAI_vicugna+(1|latrine_trt_month)+(1|latrine), data=metadata_wet)
-Anova(m_wet_pie_rai, type='III')
 summary(m_wet_pie_rai)
+Anova(m_wet_pie_rai, type='III')
+
 
 #chronosequence model
 m_wet_pie_chrono<- lmer(Pielou~treatment*class+(1|latrine_trt_month)+(1|latrine), data=metadata_wet)
@@ -776,8 +778,9 @@ qqnorm(residuals(m_dry_rich))
 
 #make vicuna rai model
 m_dry_rich_rai<- lmer(Observed~treatment*RAI_vicugna+(1|latrine_trt_month)+(1|latrine), data=metaDryRGM_both)
-Anova(m_dry_rich_rai, type='III')
 summary(m_dry_rich_rai)
+Anova(m_dry_rich_rai, type='III')
+
 
 ggplot(metaDryRGM_both, aes(x=RAI_vicugna, y=Observed))+
   geom_point(aes(color=treatment))
@@ -789,15 +792,7 @@ Anova(m_dry_rich_chrono, type='III')
 emmeans(m_dry_rich_chrono, pairwise~treatment*class)
 qqnorm(residuals(m_dry_rich_chrono))
 
-ggplot(metaDryRGM_both, aes(class, Observed)) +
-  geom_boxplot(alpha = 0.5, aes(fill=treatment)) + #adds boxplot
-  geom_point(size = 3, aes(color=elevation.y), alpha = .7) + #adds the individual points
-  labs(x = NULL, y = "ASV Richness", title = "a) 16S Alpha Diversity") +
-  scale_fill_manual(values=c('cyan3','purple3'), guide='none')+ #colors the two different treatments
-  scale_color_gradient(low='lightgray', high='black')+ #colors elevation so low values are lighter
-  theme_bw() +
-  theme+
-  facet_wrap(~treatment)
+
 
 #Shannon
 m_dry_shan<- lmer(Shannon~treatment*elevation_sc+(1|latrine_trt_month)+(1|latrine), data=metaDryRGM_both)
