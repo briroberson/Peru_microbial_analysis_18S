@@ -802,8 +802,9 @@ qqnorm(residuals(m_dry_shan))
 
 #make vicuna rai model
 m_dry_shan_rai<- lmer(Shannon~treatment*RAI_vicugna+(1|latrine_trt_month)+(1|latrine), data=metaDryRGM_both)
-Anova(m_dry_shan_rai, type='III')
 summary(m_dry_shan_rai)
+Anova(m_dry_shan_rai, type='III')
+
 
 #chronosequence model
 m_dry_shan_chrono<- lmer(Shannon~treatment*class+(1|latrine_trt_month)+(1|latrine), data=metaDryRGM_both)

@@ -279,6 +279,19 @@ ggplot(metaDryRGM_both, aes(treatment, Shannon)) +
   #scale_x_discrete(limits = rev(levels(meta16$Description))) +
   theme_bw() 
 
+#chronosequence shannon
+metaDryRGM_both$class <- factor(metaDryRGM_both$class,
+                                levels = c("LIA-1931", "1931-1962", "1984-2024")) #reorder the classes chronologically 
+ggplot(metaDryRGM_both, aes(class, Shannon)) +
+  geom_boxplot(alpha = 0.5, aes(fill=treatment)) + #adds boxplot
+  geom_point(size = 3, aes(color=elevation), alpha = .7) + #adds the individual points
+  labs(x = NULL, y = "Shannon's Diversity", title = "a) 18S Alpha Diversity") +
+  scale_fill_manual(values=c('cyan3','purple3'), guide='none')+ #colors the two different treatments
+  scale_color_gradient(low='lightgray', high='black')+ #colors elevation so low values are lighter
+  theme_bw() +
+  theme+
+  facet_wrap(~treatment)
+
 ## Inv Simpson----
 ggplot(metaDryRGM_both, aes(treatment, InvSimpson)) +
   geom_boxplot(alpha = 0.5, aes(fill=treatment)) +
