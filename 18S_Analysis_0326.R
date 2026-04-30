@@ -879,6 +879,7 @@ metadata_factored<- metadata_filt
 metadata_factored$replicate<- as.factor(metadata_factored$replicate)
 metadata_factored$latrine_trt<- as.factor(metadata_factored$latrine_trt)
 
+
 #reorder the metadata to match the order of the phyloseq
 sampr<- sample_data(filt_rare_phy_18s) #pull out data from phyloseq
 
@@ -898,12 +899,19 @@ perm_rep
 
 ## NECESSARY Run this step to get filtered phyloseq that is used for beta diversity----
 # 5b. Change ASV names 
+
+#first, for chronosequence class comparison create a new combined classXtreatment column 
+metadata_filt <- metadata_filt %>%
+  mutate(trt_class = paste(treatment, class, sep = "_"))
+
 metadata_factored<- metadata_filt
 metadata_factored$treatment<- as.factor(metadata_factored$treatment)
 metadata_factored$soilAge<- as.factor(metadata_factored$soilAge)
 metadata_factored$`month-collected`<- as.factor(metadata_factored$`month-collected`)
 metadata_factored$trt_month<- as.factor(metadata_factored$trt_month)
 metadata_factored$trt_soilAge<- as.factor(metadata_factored$trt_soilAge)
+metadata_factored$class <- as.factor(metadata_factored$class)
+metadata_factored$trt_class <- as.factor(metadata_factored$trt_class)
 
 ## filter out rep 2
 filt_rare_rep2 <- subset_samples(filt_rare_phy_18s, replicate==1 |row.names(filt_rare_phy_18s@sam_data) %in% c('10', '14') )
@@ -998,6 +1006,18 @@ permanova_pairwise(distance(filt_rare_wet2, method='wunifrac'), grp=metadata_wet
 
 # see Plots_18S file for code to make plots
 
+#permanova with chronosequence age classes 
+permanova_wet_chrono <- adonis2(distance(filt_rare_wet2, method='wunifrac')~treatment*class, data=metadata_wetF, by='terms')
+permanova_wet_chrono
+
+#pairwise permanova to see which groups are different from each other
+permanova_pairwise(distance(filt_rare_wet2, method='wunifrac'), grp=metadata_wetF$trt_class, padj='holm')
+
+#NOT NECESSARY: to export pairwise comparisons as csvs 
+wet_pairwise_permanova <- permanova_pairwise(distance(filt_rare_wet2, method='wunifrac'), grp=metadata_wetF$trt_class, padj='holm')
+write.csv(wet_pairwise_permanova, "wet_pairwise_permanova.csv", row.names = FALSE)
+
+
 ## RGM Subset Permanova----
 # 5f. RGM Permanova
 set.seed(200)
@@ -1025,6 +1045,21 @@ set.seed(200)
 permanova_rgmD<- adonis2(distance(filt_rare_RGM_dry, method='wunifrac')~treatment, data=metaDryRGM, by='terms')
 permanova_rgmD
 
+#permanova with chronosequence age classes 
+#drop LIA class from the RGM metadata: 
+metaDryRGM$trt_class <- droplevels(metaDryRGM$trt_class)
+table(metaDryRGM$trt_class) #looks good 
+
+permanova_rgmD_chrono <- adonis2(distance(filt_rare_RGM_dry, method='wunifrac')~treatment*class, data=metaDryRGM, by='terms')
+permanova_rgmD_chrono
+
+#pairwise permanova to see which groups are different from each other
+permanova_pairwise(distance(filt_rare_RGM_dry, method='wunifrac'), grp=metaDryRGM$trt_class, padj='holm')
+
+#NOT NECESSARY: to export pairwise comparisons as csvs 
+rgmD_pairwise_permanova <- permanova_pairwise(distance(filt_rare_RGM_dry, method='wunifrac'), grp=metaDryRGM$trt_class, padj='holm')
+write.csv(rgmD_pairwise_permanova, "rgmD_pairwise_permanova.csv", row.names = FALSE)
+
 # Homogeneity of dispersions----
 
 ##Wet subset: 
@@ -1033,12 +1068,26 @@ wet_permutest <- permutest(wet_betadis, permutations = 999) #test for difference
 wet_permutest
 boxplot(wet_betadis)
 
+###wet chronosequence: 
+wet_betadis_chrono <- betadisper(distance(filt_rare_wet2, method = 'wunifrac'), group = metadata_wetF$trt_class, type = 'median') #create betadisper object with dispersion distances  
+wet_permutest_chrono <- permutest(wet_betadis_chrono, permutations = 999) #test for differences in dispersions 
+wet_permutest_chrono
+boxplot(wet_betadis_chrono)
+
+
+
 #adonis2(dist(wet_betadis$distances) ~ metadata_wetF$trt_soilAge)
 
-#RGM Dry subset: 
+##RGM Dry subset: 
 dryRGM_betadis<-betadisper(distance(filt_rare_RGM_dry, method='wunifrac'), group=metaDryRGM$treatment, type='median')
 permutest(dryRGM_betadis)
 boxplot(dryRGM_betadis)
+
+###rgm dry chronosequence: 
+dryRGM_betadis_chrono<-betadisper(distance(filt_rare_RGM_dry, method='wunifrac'), group=metaDryRGM$trt_class, type='median')
+permutest(dryRGM_betadis_chrono)
+boxplot(dryRGM_betadis_chrono)
+
 
 #adonis2(dist(dryRGM_betadis$distances)~metaDryRGM$treatment)
 
