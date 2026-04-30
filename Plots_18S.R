@@ -390,6 +390,44 @@ pres<-officer::read_pptx("F:\\Research\\github\\Peru_microbial_analysis_18s\\18s
 
 print(pres, target="F:\\Research\\github\\Peru_microbial_analysis_18s\\18s_ASVPlots.pptx")
 
+
+
+####### wet chronosequence----
+#get asv table and transpose
+asvW<- as.data.frame(otu_table(filt_rare_wet2))
+tasvW <- data.frame(t(asvW), check.names = F)
+
+#calculate the pcoa
+pcoaW<-cmdscale(d=distance(filt_rare_wet2, method='wunifrac'), eig=T)
+
+#retrieve species scores for it
+spscorW<-as.data.frame(wascores(x = pcoaW$points, w = tasvW))
+
+#add the scores to the metadata
+metadata_wetF$axis01<- vegan::scores(pcoaW)[,1]
+metadata_wetF$axis02<- vegan::scores(pcoaW)[,2]
+
+#use this function to calculate the hulls
+find_hull <- function(df) df[chull(df$axis01, df$axis02),]
+micro.hullsW <- ddply(metadata_wetF, "trt_class", find_hull)
+
+#plot it
+wetbeta_chrono<-ggplot(metadata_wetF, aes(axis01, axis02)) +
+  geom_polygon(data = micro.hullsW, 
+               aes(colour = trt_class, fill = trt_class), alpha = 0.1, show.legend = F) +
+  # geom_segment(aes(x=0, xend=V1, y=0, yend=V2), data=spscorW, arrow=arrow())+
+  geom_point(size = 2, aes(colour = trt_class))+ #+
+ # scale_color_manual(labels=c('LIA Control','RGM Control','LIA Latrine','RGM Latrine'),
+                   #  values=c('cyan4', 'cyan2', 'purple4', 'purple1'))+
+  xlab("PCoA 1") +
+  ylab("PCoA 2") +
+  labs(colour = "Treatment & Chronosequence Class", title='by Class') +
+  theme_bw() 
+wetbeta_chrono
+
+
+
+
 #the geom_segment code is used to add arrows to the plot. currently, it is plotting all
 # asvs (the whole spscorW dataframe). to plot specific ones, you can subset the spscorW data frame
 # by making a list of the ASVs that you want (from multipatt, simper, distance, etc.)
@@ -585,6 +623,43 @@ officer::read_pptx() %>%
   # export slide 
   base::print(
     target = "F:\\Research\\16S_Soil\\Plots\\PCoArgmD.pptx")
+
+
+###rgm dry chronosequence 
+
+#get asv table and transpose
+asvDC<- as.data.frame(otu_table(filt_rare_RGM_dry))
+tasvDC <- data.frame(t(asvDC), check.names = F)
+
+#calculate the pcoa
+pcoaDC<-cmdscale(d=distance(filt_rare_RGM_dry, method='wunifrac'), eig=T)
+
+#retrieve species scores for it
+spscorDC<-as.data.frame(wascores(x = pcoaDC$points, w = tasvDC))
+
+#add the scores to the metadata
+metaDryRGM$axis01<- vegan::scores(pcoaDC)[,1]
+metaDryRGM$axis02<- vegan::scores(pcoaDC)[,2]
+
+#use this function to calculate the hulls
+find_hull <- function(df) df[chull(df$axis01, df$axis02),]
+micro.hullsDC <- ddply(metaDryRGM, "trt_class", find_hull)
+
+#plot it
+drybeta_chrono<-ggplot(metaDryRGM, aes(axis01, axis02)) +
+  geom_polygon(data = micro.hullsDC, 
+               aes(colour = trt_class, fill = trt_class), alpha = 0.1, show.legend = F) +
+  # geom_segment(aes(x=0, xend=V1, y=0, yend=V2), data=spscorW, arrow=arrow())+
+  geom_point(size = 2, aes(colour = trt_class))+ #+
+  # scale_color_manual(labels=c('LIA Control','RGM Control','LIA Latrine','RGM Latrine'),
+  #  values=c('cyan4', 'cyan2', 'purple4', 'purple1'))+
+  xlab("PCoA 1") +
+  ylab("PCoA 2") +
+  labs(colour = "Treatment & Chronosequence Class", title='by Class') +
+  theme_bw() 
+drybeta_chrono
+
+
 
 
 
