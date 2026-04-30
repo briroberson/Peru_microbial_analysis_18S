@@ -154,7 +154,16 @@ officer::read_pptx() %>%
   base::print(
     target = "F:\\Research\\github\\Peru_microbial_analysis_18s\\18s_ASVPlots.pptx")
 
-
+#chromosequence richness 
+ggplot(metadata_wet, aes(class, Observed)) +
+  geom_boxplot(alpha = 0.5, aes(fill=treatment)) + #adds boxplot
+  geom_point(size = 3, aes(color=elevation), alpha = .7) + #adds the individual points
+  labs(x = NULL, y = "ASV Richness", title = "a) 16S Alpha Diversity") +
+  scale_fill_manual(values=c('cyan3','purple3'), guide='none')+ #colors the two different treatments
+  scale_color_gradient(low='lightgray', high='black')+ #colors elevation so low values are lighter
+  theme_bw() +
+  theme+
+  facet_wrap(~treatment)
 
 
 ### Shannon----

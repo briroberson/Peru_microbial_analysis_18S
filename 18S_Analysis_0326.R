@@ -318,7 +318,7 @@ filt_rare_phy<- mirl_phyloseq
 #steps 1b-3e
 
 saveRDS(filt_rare_phy, file="filt_rare_phy_18s.rds") #use whatever file path for where you want to save it
-filt_rare_phy_18S<-readRDS("filt_rare_phy_18s.rds")
+filt_rare_phy_18s<-readRDS("filt_rare_phy_18s.rds")
 
 
 
@@ -568,8 +568,9 @@ lrtest(m_wet_richNB, m_wet_rich_nullI)
 
 #make vicuna rai model
 m_wet_rich_rai<- lmer(Observed~treatment*RAI_vicugna+(1|latrine_trt_month)+(1|latrine), data=metadata_wet)
-Anova(m_wet_rich_rai, type='III')
 summary(m_wet_rich_rai)
+Anova(m_wet_rich_rai, type='III')
+
 
 #chronosequence model
 m_wet_rich_chrono<- lmer(Observed~treatment*class+(1|latrine_trt_month)+(1|latrine), data=metadata_wet)
@@ -578,15 +579,7 @@ Anova(m_wet_rich_chrono, type='III')
 emmeans(m_wet_rich_chrono, pairwise~treatment*class)
 qqnorm(residuals(m_wet_rich_chrono))
 
-ggplot(metadata_wet, aes(class, Observed)) +
-  geom_boxplot(alpha = 0.5, aes(fill=treatment)) + #adds boxplot
-  geom_point(size = 3, aes(color=elevation.y), alpha = .7) + #adds the individual points
-  labs(x = NULL, y = "ASV Richness", title = "a) 16S Alpha Diversity") +
-  scale_fill_manual(values=c('cyan3','purple3'), guide='none')+ #colors the two different treatments
-  scale_color_gradient(low='lightgray', high='black')+ #colors elevation so low values are lighter
-  theme_bw() +
-  theme+
-  facet_wrap(~treatment)
+#see plots for regressions / boxplots 
 
 
 
