@@ -198,6 +198,16 @@ ggplot(metadata_wet, aes(class, Shannon)) +
   theme_bw() +
   theme+
   facet_wrap(~treatment)
+#or grouped by class 
+ggplot(metadata_wet, aes(treatment, Shannon)) +
+  geom_boxplot(alpha = 0.5, aes(fill=treatment)) + #adds boxplot
+  geom_point(size = 3, aes(color=elevation), alpha = .7) + #adds the individual points
+  labs(x = NULL, y = "Shannon's Diversity", title = "a) 18S Alpha Diversity") +
+  scale_fill_manual(values=c('cyan3','purple3'), guide='none')+ #colors the two different treatments
+  scale_color_gradient(low='lightgray', high='black')+ #colors elevation so low values are lighter
+  theme_bw() +
+  theme+
+  facet_wrap(~class, nrow = 1)
 
 ### Inv Simpson ----
 ggplot(metadata_wet, aes(treatment, InvSimpson)) +
