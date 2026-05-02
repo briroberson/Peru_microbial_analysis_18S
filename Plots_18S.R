@@ -433,13 +433,69 @@ find_hull <- function(df) df[chull(df$axis01, df$axis02),]
 micro.hullsW <- ddply(metadata_wetF, "trt_class", find_hull)
 
 #plot it
+library(rcartocolor)
+
+# get 8 colors from Earth palate
+earth_cols <- carto_pal(8, "Earth")
+
+# assign first half (browns) to control, second half (blues) to latrine
+pcoa_cols <- c(
+  "control_LIA"        = earth_cols[1],
+  "control_LIA-1931"   = earth_cols[2],
+  "control_1931-1962"  = earth_cols[3],
+  "control_1984-2024"  = earth_cols[4],
+  
+  "latrine_LIA"        = earth_cols[5],
+  "latrine_LIA-1931"   = earth_cols[6],
+  "latrine_1931-1962"  = earth_cols[7],
+  "latrine_1984-2024"  = earth_cols[8]
+)
+
+temps_cols <- carto_pal(9, "Temps")
+
+pcoa_cols2 <- c(
+  "control_LIA"        = temps_cols[1],
+  "control_LIA-1931"   = temps_cols[2],
+  "control_1931-1962"  = temps_cols[3],
+  "control_1984-2024"  = temps_cols[4],
+  
+  "latrine_LIA"        = temps_cols[6],
+  "latrine_LIA-1931"   = temps_cols[7],
+  "latrine_1931-1962"  = temps_cols[8],
+  "latrine_1984-2024"  = temps_cols[9]
+)
+
 wetbeta_chrono<-ggplot(metadata_wetF, aes(axis01, axis02)) +
   geom_polygon(data = micro.hullsW, 
                aes(colour = trt_class, fill = trt_class), alpha = 0.1, show.legend = F) +
   # geom_segment(aes(x=0, xend=V1, y=0, yend=V2), data=spscorW, arrow=arrow())+
-  geom_point(size = 2, aes(colour = trt_class))+ #+
- # scale_color_manual(labels=c('LIA Control','RGM Control','LIA Latrine','RGM Latrine'),
-                   #  values=c('cyan4', 'cyan2', 'purple4', 'purple1'))+
+  geom_point(size = 2, aes(colour = trt_class, shape = class))+ 
+  scale_colour_manual(
+    values = pcoa_cols2,
+    breaks = c(
+      "control_LIA",
+      "control_LIA-1931",
+      "control_1931-1962",
+      "control_1984-2024",
+      "latrine_LIA",
+      "latrine_LIA-1931",
+      "latrine_1931-1962",
+      "latrine_1984-2024"
+    )
+  ) +
+  scale_fill_manual(
+    values = pcoa_cols2,
+    breaks = c(
+      "control_LIA",
+      "control_LIA-1931",
+      "control_1931-1962",
+      "control_1984-2024",
+      "latrine_LIA",
+      "latrine_LIA-1931",
+      "latrine_1931-1962",
+      "latrine_1984-2024"
+    )
+  ) + 
   xlab("PCoA 1") +
   ylab("PCoA 2") +
   labs(colour = "Treatment & Chronosequence Class", title='by Class') +
