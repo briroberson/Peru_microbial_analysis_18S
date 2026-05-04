@@ -57,7 +57,7 @@ metadata<-readr::read_tsv("18sformatted_metadata.tsv")
 #this is the elevation file
 waypoints<- read.csv("waypoints.csv")
 #slope and aspect file
-slope_aspect<- read.csv("latrine_geog_info.csv")
+#slope_aspect<- read.csv("latrine_geog_info.csv")
 
 #chronosequences
 chrono<- read.csv('soil_chronosequence_points.csv') #using the dual Tang and Seimon method decided April 28 2026
@@ -483,17 +483,17 @@ metadata_filt$elevation_ref<- (metadata_filt$elevation-5111)
 #instead of true elevation, this is elevation from ~5100m
 
 #format slope and aspect data to be merged
-slope_aspect$latrine<- slope_aspect$Latrine
+#slope_aspect$latrine<- slope_aspect$Latrine
 #join them together
-metadata_filt<- metadata_filt %>% 
-  left_join(slope_aspect, by='latrine')
+#metadata_filt<- metadata_filt %>% 
+#  left_join(slope_aspect, by='latrine')
 
 #add critter stuff
 critter$latrine<- critter$X
 
 metadata_crit<- metadata_filt %>% 
   filter(treatment=='latrine') %>% 
-  dplyr::select(c('latrine','Observed','Shannon','elevation','InvSimpson','Pielou','replicate','latrine_trt_month','month-collected'))
+  dplyr::select(c('latrine','Observed','Shannon','elevation','InvSimpson','Pielou','replicate','latrine_trt_month','month-collected','elevation'))
 
 critter_filt<-critter %>% 
   left_join(metadata_crit, by='latrine')
