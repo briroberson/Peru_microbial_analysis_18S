@@ -1220,6 +1220,108 @@ plot_ts_heatmap(Phy_relabRt, metaDryRGM, 0.01, "latrine_trt",colors=c('#fcfdbf',
   labs(title='RGM Dry')
 
 
+#####Stacked bar charts
+
+##By sample 
+
+#LIA using phylum
+
+#make taxa a row
+Phy_relabLt$taxa<- row.names(Phy_relabLt)
+#make long format & join metadata 
+Phy_relabLtlong<- pivot_longer(Phy_relabLt, names_to='sample', cols=1:8)
+Phy_relabLtlong <- Phy_relabLtlong %>%
+  left_join(metalia %>% select(SampleID, treatment),
+    by = c("sample" = "SampleID"))
+# order samples for plotting 
+sample_order <- Phy_relabLtlong %>%
+  arrange(treatment, sample) %>%
+  pull(sample) %>%
+  unique()
+Phy_relabLtlong$sample <- factor(
+  Phy_relabLtlong$sample,
+  levels = sample_order)
+#plot
+ggplot(Phy_relabLtlong, aes(x = sample, y = value, fill = taxa)) +
+  geom_bar(stat = "identity", position = "fill") +
+  facet_grid(~treatment,
+             scales = "free_x",
+             space = "free_x") +
+  scale_fill_manual(values = c(
+    "#bd6553","#cca86a","#bab47b","#beadc7","#a68698",
+    "#c3d9c3","#97b8bf","#7a523b","#b07f15","#1d8c27",
+    "#735a94","#965148","#4b7396","#4d4846","#869187",
+    "#781038"
+  )) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+
+
+#RGM Wet
+
+#make taxa a row 
+Phy_relabWt$taxa<- row.names(Phy_relabWt)
+#make long format & join metadata 
+Phy_relabWtlong<- pivot_longer(Phy_relabWt, names_to='sample', cols=1:38)
+Phy_relabWtlong <- Phy_relabWtlong %>%
+  left_join(metargmW %>% select(SampleID, treatment),
+            by = c("sample" = "SampleID"))
+# order samples for plotting 
+sample_order <- Phy_relabWtlong %>%
+  arrange(treatment, sample) %>%
+  pull(sample) %>%
+  unique()
+Phy_relabWtlong$sample <- factor(
+  Phy_relabWtlong$sample,
+  levels = sample_order)
+#plot
+ggplot(Phy_relabWtlong, aes(x = sample, y = value, fill = taxa)) +
+  geom_bar(stat = "identity", position = "fill") +
+  facet_grid(~treatment,
+             scales = "free_x",
+             space = "free_x") +
+  scale_fill_manual(values = c(
+    "#bd6553","#cca86a","#bab47b","#beadc7","#a68698",
+    "#c3d9c3","#97b8bf","#7a523b","#b07f15","#1d8c27",
+    "#735a94","#965148","#4b7396","#4d4846","#869187",
+    "#781038"
+  )) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+
+#RGM dry
+Phy_relabRt$taxa<- row.names(Phy_relabRt)
+#make long format & join metadata 
+Phy_relabRtlong<- pivot_longer(Phy_relabRt, names_to='sample', cols=1:24)
+Phy_relabRtlong <- Phy_relabRtlong %>%
+  left_join(metaDryRGM %>% select(SampleID, treatment),
+            by = c("sample" = "SampleID"))
+# order samples for plotting 
+sample_order <- Phy_relabRtlong %>%
+  arrange(treatment, sample) %>%
+  pull(sample) %>%
+  unique()
+Phy_relabRtlong$sample <- factor(
+  Phy_relabRtlong$sample,
+  levels = sample_order)
+#plot
+ggplot(Phy_relabRtlong, aes(x = sample, y = value, fill = taxa)) +
+  geom_bar(stat = "identity", position = "fill") +
+  facet_grid(~treatment,
+             scales = "free_x",
+             space = "free_x") +
+  scale_fill_manual(values = c(
+    "#bd6553","#cca86a","#bab47b","#beadc7","#a68698",
+    "#c3d9c3","#97b8bf","#7a523b","#b07f15","#1d8c27",
+    "#735a94","#965148","#4b7396","#4d4846","#869187",
+    "#781038"
+  )) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+
+
+##By treatment 
+
 ###########RGM dry----
 #add control/latrine data to relative abundance matrix
 dry_trt<-metaDryRGM$treatment
