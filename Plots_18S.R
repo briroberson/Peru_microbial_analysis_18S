@@ -1,12 +1,12 @@
 #save the theme so that it can be used for all the plots by just typing '+theme
 # instead of having to include all of these lines
 theme<-theme(
-      plot.title = element_text(size = 16, hjust = 0.5),
-      axis.title.y = element_text(face="bold", size = 18), 
-      axis.text.y = element_text(size = 16),
-      axis.title.x = element_text(size = 18, face = "bold",color = "black"),
-      axis.text.x=element_text(size=16),
-      plot.margin = unit(c(0.1,0.1,0,0.1),"cm"))
+  plot.title = element_text(size = 16, hjust = 0.5),
+  axis.title.y = element_text(face="bold", size = 18), 
+  axis.text.y = element_text(size = 10),
+  axis.title.x = element_text(size = 18, face = "bold",color = "black"),
+  axis.text.x=element_text(size=10),
+  plot.margin = unit(c(0.1,0.1,0,0.1),"cm"))
 
 library(plyr)
 library(heatmaply)
@@ -19,7 +19,7 @@ library(funrar)
 library(mctoolsr)
 library(rvg)
 library(officer)
-
+library(patchwork)
 
 ## Elevation plots----
 #requires that you load in the metadata and phyloseq, then 
@@ -134,12 +134,13 @@ ggplot(metaDryRGM_both, aes(x=elevation, y=InvSimpson, color=treatment))+
 ## Alpha diversity plot----
 ## Richness ----
 wetrich<-ggplot(metadata_wet, aes(treatment, Observed)) +
-  geom_boxplot(alpha = 0.5, aes(fill=treatment)) + #adds boxplot
+  geom_boxplot(alpha = 1, aes(fill=treatment)) + #adds boxplot
   geom_point(size = 3, aes(color=elevation), alpha = .7) + #adds the individual points
   labs(x = NULL, y = "ASV Richness", title = "a) 18S  Wet Season Alpha Diversity") +
-  scale_fill_manual(values=c('cyan3','purple3'), guide='none')+ #colors the two different treatments
+  scale_fill_manual(values=c('#CCEBC5','#BC80BD'), guide='none')+ #colors the two different treatments
   scale_color_gradient(low='lightgray', high='black')+ #colors elevation so low values are lighter
   theme_bw() +
+  theme()+
   facet_wrap(~soilAge) #so that it shows two panels, one for each soil age
 wetrich
 #export the plot to a powerpoint to edit
@@ -166,12 +167,15 @@ ggplot(metadata_wet, aes(class, Observed)) +
   facet_wrap(~treatment)
 
 #or grouped by class 
-ggplot(metadata_wet, aes(treatment, Observed)) +
+wetrich_chrono_plot <- ggplot(metadata_wet, aes(treatment, Observed)) +
   geom_boxplot(alpha = 0.5, aes(fill=treatment)) + #adds boxplot
   geom_point(size = 3, aes(color=elevation), alpha = .7) + #adds the individual points
-  labs(x = NULL, y = "ASV Richness", title = "a) 18S Alpha Diversity") +
+  labs(x = NULL, y = NULL, title = "c)") +
   scale_fill_manual(values=c('cyan3','purple3'), guide='none')+ #colors the two different treatments
   scale_color_gradient(low='lightgray', high='black')+ #colors elevation so low values are lighter
+  scale_x_discrete(labels = c(
+    control = "Reference",
+    latrine = "Latrine")) +
   theme_bw() +
   theme+
   facet_wrap(~class, nrow = 1)
@@ -290,18 +294,20 @@ ggplot(metaDryRGM_both, aes(class, Observed)) +
   theme+
   facet_wrap(~treatment)
 
-#chronosequence richness - grouped by class
-metaDryRGM_both$class <- factor(metaDryRGM_both$class,
-                                levels = c("LIA-1931", "1931-1962", "1984-2024")) #reorder the classes chronologically 
-ggplot(metaDryRGM_both, aes(treatment, Observed)) +
+
+#or by class 
+dryrich_chrono_plot <- ggplot(metaDryRGM_both, aes(treatment, Observed)) +
   geom_boxplot(alpha = 0.5, aes(fill=treatment)) + #adds boxplot
   geom_point(size = 3, aes(color=elevation), alpha = .7) + #adds the individual points
-  labs(x = NULL, y = "ASV Richness", title = "a) 18S Alpha Diversity") +
+  labs(x = NULL, y = NULL, title = "d)") +
   scale_fill_manual(values=c('cyan3','purple3'), guide='none')+ #colors the two different treatments
   scale_color_gradient(low='lightgray', high='black')+ #colors elevation so low values are lighter
+  scale_x_discrete(labels = c(
+    control = "Reference",
+    latrine = "Latrine")) +
   theme_bw() +
   theme+
-  facet_wrap(~class)
+  facet_wrap(~class, nrow = 1)
 
 
 
@@ -361,6 +367,8 @@ ggplot(metaDryRGM_both, aes(treatment, Pielou)) +
 
 
 
+#plot both richness together 
+wetrich_chrono_plot + dryrich_chrono_plot
 
 
 ## PCoA plot----
@@ -462,8 +470,21 @@ pcoa_cols2 <- c(
   "latrine_LIA"        = temps_cols[6],
   "latrine_LIA-1931"   = temps_cols[7],
   "latrine_1931-1962"  = temps_cols[8],
-  "latrine_1984-2024"  = temps_cols[9]
-)
+  "latrine_1984-2024"  = temps_cols[9])
+
+control_cols <- colorRampPalette(c("#b3de69", "cyan"))(4)
+latrine_cols <- colorRampPalette(c("#fb8072", "purple1"))(4)
+pcoa_cols2 <- c(
+  "control_LIA"       = control_cols[1],
+  "control_LIA-1931"  = control_cols[2],
+  "control_1931-1962" = control_cols[3],
+  "control_1984-2024" = control_cols[4],
+  
+  "latrine_LIA"       = latrine_cols[1],
+  "latrine_LIA-1931"  = latrine_cols[2],
+  "latrine_1931-1962" = latrine_cols[3],
+  "latrine_1984-2024" = latrine_cols[4])
+
 
 wetbeta_chrono<-ggplot(metadata_wetF, aes(axis01, axis02)) +
   geom_polygon(data = micro.hullsW, 
@@ -1224,6 +1245,13 @@ plot_ts_heatmap(Phy_relabRt, metaDryRGM, 0.01, "latrine_trt",colors=c('#fcfdbf',
 
 ##By sample 
 
+#set global color scheme with unique, consistent colors for taxa 
+all_taxa <- sort(unique(c(
+  Phy_relabLt$taxa,  
+  Phy_relabWt$taxa, 
+  Phy_relabRt$taxa)))
+cols <- setNames(colorRampPalette(brewer.pal(11, "Set3"))(length(all_taxa)), all_taxa)
+
 #LIA using phylum
 
 #make taxa a row
@@ -1231,8 +1259,9 @@ Phy_relabLt$taxa<- row.names(Phy_relabLt)
 #make long format & join metadata 
 Phy_relabLtlong<- pivot_longer(Phy_relabLt, names_to='sample', cols=1:8)
 Phy_relabLtlong <- Phy_relabLtlong %>%
-  left_join(metalia %>% select(SampleID, treatment),
+  left_join(metalia %>% select(SampleID, treatment, latrine),
     by = c("sample" = "SampleID"))
+Phy_relabLtlong$latrine <- gsub("^L", "", Phy_relabLtlong$latrine) #remove L for labelling
 # order samples for plotting 
 sample_order <- Phy_relabLtlong %>%
   arrange(treatment, sample) %>%
@@ -1241,20 +1270,30 @@ sample_order <- Phy_relabLtlong %>%
 Phy_relabLtlong$sample <- factor(
   Phy_relabLtlong$sample,
   levels = sample_order)
+
+#format sample names 
+sample_labels <- Phy_relabLtlong %>%
+  distinct(sample, latrine) %>%
+  arrange(sample)
+label_vec <- setNames(
+  sample_labels$latrine,
+  sample_labels$sample)
+
 #plot
-ggplot(Phy_relabLtlong, aes(x = sample, y = value, fill = taxa)) +
+ggplot(Phy_relabLtlong,
+       aes(x = sample, y = value, fill = taxa)) +
   geom_bar(stat = "identity", position = "fill") +
   facet_grid(~treatment,
              scales = "free_x",
-             space = "free_x") +
-  scale_fill_manual(values = c(
-    "#bd6553","#cca86a","#bab47b","#beadc7","#a68698",
-    "#c3d9c3","#97b8bf","#7a523b","#b07f15","#1d8c27",
-    "#735a94","#965148","#4b7396","#4d4846","#869187",
-    "#781038"
-  )) +
+             space = "free_x", 
+             labeller = labeller(
+               treatment = c(
+                 control = "Reference",
+                 latrine = "Latrine" ))) +
+  scale_x_discrete(labels = label_vec) +
+  labs(x = "Site", y = "Relative abundance", fill = "Phylum" ) +
+  scale_fill_manual(values = cols) +
   theme(axis.text.x = element_text(angle = 60, hjust = 1))
-
 
 
 #RGM Wet
@@ -1264,8 +1303,9 @@ Phy_relabWt$taxa<- row.names(Phy_relabWt)
 #make long format & join metadata 
 Phy_relabWtlong<- pivot_longer(Phy_relabWt, names_to='sample', cols=1:38)
 Phy_relabWtlong <- Phy_relabWtlong %>%
-  left_join(metargmW %>% select(SampleID, treatment),
+  left_join(metargmW %>% select(SampleID, treatment, latrine),
             by = c("sample" = "SampleID"))
+Phy_relabWtlong$latrine <- gsub("^L", "", Phy_relabWtlong$latrine) #remove L for labelling
 # order samples for plotting 
 sample_order <- Phy_relabWtlong %>%
   arrange(treatment, sample) %>%
@@ -1274,6 +1314,15 @@ sample_order <- Phy_relabWtlong %>%
 Phy_relabWtlong$sample <- factor(
   Phy_relabWtlong$sample,
   levels = sample_order)
+
+#format sample names 
+sample_labels <- Phy_relabWtlong %>%
+  distinct(sample, latrine) %>%
+  arrange(sample)
+label_vec <- setNames(
+  sample_labels$latrine,
+  sample_labels$sample)
+
 #plot
 ggplot(Phy_relabWtlong, aes(x = sample, y = value, fill = taxa)) +
   geom_bar(stat = "identity", position = "fill") +
@@ -1288,14 +1337,31 @@ ggplot(Phy_relabWtlong, aes(x = sample, y = value, fill = taxa)) +
   )) +
   theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
+ggplot(Phy_relabWtlong, 
+       aes(x = sample, y = value, fill = taxa)) +
+  geom_bar(stat = "identity", position = "fill") +
+  facet_grid(~treatment,
+             scales = "free_x",
+             space = "free_x", 
+             labeller = labeller(
+               treatment = c(
+                 control = "Reference",
+                 latrine = "Latrine" ))) +
+  scale_x_discrete(labels = label_vec) +
+  labs(x = "Site", y = "Relative abundance", fill = "Phylum" ) +
+  scale_fill_manual(values = cols) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+
 
 #RGM dry
 Phy_relabRt$taxa<- row.names(Phy_relabRt)
 #make long format & join metadata 
 Phy_relabRtlong<- pivot_longer(Phy_relabRt, names_to='sample', cols=1:24)
 Phy_relabRtlong <- Phy_relabRtlong %>%
-  left_join(metaDryRGM %>% select(SampleID, treatment),
+  left_join(metaDryRGM %>% select(SampleID, treatment, latrine),
             by = c("sample" = "SampleID"))
+Phy_relabRtlong$latrine <- gsub("^L", "", Phy_relabRtlong$latrine) #remove L for labelling
 # order samples for plotting 
 sample_order <- Phy_relabRtlong %>%
   arrange(treatment, sample) %>%
@@ -1304,6 +1370,14 @@ sample_order <- Phy_relabRtlong %>%
 Phy_relabRtlong$sample <- factor(
   Phy_relabRtlong$sample,
   levels = sample_order)
+#format sample names 
+sample_labels <- Phy_relabRtlong %>%
+  distinct(sample, latrine) %>%
+  arrange(sample)
+label_vec <- setNames(
+  sample_labels$latrine,
+  sample_labels$sample)
+
 #plot
 ggplot(Phy_relabRtlong, aes(x = sample, y = value, fill = taxa)) +
   geom_bar(stat = "identity", position = "fill") +
@@ -1317,6 +1391,25 @@ ggplot(Phy_relabRtlong, aes(x = sample, y = value, fill = taxa)) +
     "#781038"
   )) +
   theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+ggplot(Phy_relabRtlong, 
+       aes(x = sample, y = value, fill = taxa)) +
+  geom_bar(stat = "identity", position = "fill") +
+  facet_grid(~treatment,
+             scales = "free_x",
+             space = "free_x", 
+             labeller = labeller(
+               treatment = c(
+                 control = "Reference",
+                 latrine = "Latrine" ))) +
+  scale_x_discrete(labels = label_vec) +
+  labs(x = "Site", y = "Relative abundance", fill = "Phylum" ) +
+  scale_fill_manual(values = cols) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+
+
+
 
 
 
@@ -1587,6 +1680,12 @@ ggplot(lia_final_ab, aes(x = treatment, y = avg_rel_ab, fill = Phylum)) +
   theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
 
+##combined wet and dry season figure 
+
+#assign 'Other' its own color 
+cols["Other"] <- "grey70"
+
+
 ###combine all data
 allsoil <- bind_rows(
   dry_final_ab,
@@ -1616,4 +1715,58 @@ ggplot(allsoil, aes(x=trt_soil, y=avg_rel_ab, fill=Phylum ))+
   theme(axis.text.x=element_text(angle=60, hjust=1))
 
 
+# subset combined data
+wet_sub_da <- allsoil %>%
+  filter(grepl("wetRGM|lia", trt_soil))
+dry_sub_da <- allsoil %>%
+  filter(grepl("dryRGM", trt_soil))
 
+#format labels 
+wet_sub_da$Treatment <- ifelse(
+  grepl("control", wet_sub_da$trt_soil), "Reference","Latrine")
+dry_sub_da$Treatment <- ifelse(
+  grepl("control", dry_sub_da$trt_soil),"Reference", "Latrine")
+
+#groups for faceting
+wet_sub_da$Soil <- case_when(
+  grepl("lia", wet_sub_da$trt_soil) ~ "LIA",
+  grepl("wetRGM", wet_sub_da$trt_soil) ~ "RGM")
+
+#character phylum for color matching 
+wet_sub_da$Phylum <- as.character(wet_sub_da$Phylum)
+dry_sub_da$Phylum <- as.character(dry_sub_da$Phylum)
+
+
+# PLOT 1 — wet season LIA & RGM
+p1 <- ggplot(wet_sub_da, aes(x = Treatment, y = avg_rel_ab, fill = Phylum)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~Soil) +
+  scale_fill_manual(values = cols) +
+  labs(
+    title = "Wet Season",
+    x = "",
+    y = "Relative Abundance" ) +
+  theme(axis.text.x=element_text(angle=60, hjust=1)) + 
+  theme()
+
+
+# PLOT 2 — dry season
+p2 <- ggplot(dry_sub_da, aes(x = Treatment, y = avg_rel_ab, fill = Phylum)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = cols) +
+  labs(
+    title = "Dry Season (RGM)",
+    x = "",
+    y = "Relative Abundance") +
+  theme(axis.text.x=element_text(angle=60, hjust=1)) + 
+  theme()
+
+#combine into a single legend for plotting 
+legend <- get_legend(p1)
+
+#plot combined figure 
+final_plot <- plot_grid(
+  p1 + theme(legend.position = "none"),
+  p2 + theme(legend.position = "none"),
+  ncol = 2)
+plot_grid(final_plot, legend, rel_widths = c(4, 1))
