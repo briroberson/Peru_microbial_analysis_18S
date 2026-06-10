@@ -128,6 +128,46 @@ ggplot(metaDryRGM_both, aes(x=elevation, y=InvSimpson, color=treatment))+
   theme_bw()+
   labs(title='RGM Dry Pielou')
 
+###RAI 
+ggplot(critter_wet, aes(x=Vicuna.RAI, y=Observed, color = elevation)) + 
+  geom_point(size = 3, aes(color = elevation), alpha = 0.7) + 
+  geom_smooth(method = 'lm', color = "purple3", fill = "purple3", alpha = 0.2) + 
+  scale_color_gradient(low = 'lightgray', high = 'black') + 
+  labs(title = "RAI v eukaryote richness") + 
+  theme+
+  theme_bw()
+
+#or 3d 
+library (plotly)
+rai_3d_wet <- plot_ly(critter_wet, x = ~Vicuna.RAI, y = ~elevation, z = ~Observed, 
+                      type = "scatter3d", mode = "markers", color = ~Observed, 
+                      colors = c("#2b83ba", "#d7191c")) %>%
+  layout(scene = list(
+    xaxis = list(title = 'Vicuna RAI'), 
+    yaxis = list(title = 'Elevation'), 
+    zaxis = list(title = "Euk richness")
+  ))
+rai_3d_wet
+htmlwidgets::saveWidget(rai_3d_wet, "rai_3d_wet.html")
+
+#or split into two groups
+critter_wet_split <- critter_wet %>%
+  mutate(elev_group = ifelse(
+    elevation <= 5300,
+    "Low elevation",
+    "High elevation"
+  ))
+
+ggplot(critter_wet_split, aes(x=Vicuna.RAI, y=Observed, color=elev_group))+
+  geom_point()+
+  geom_smooth(method='lm')+
+  scale_color_manual(values=c('#2b83ba','#d7191c'))+
+  geom_text_repel(aes(label = X),
+                  size = 3,
+                  max.overlaps = Inf) +
+  theme+
+  theme_bw()+
+  labs(title='Wet RAI vs 18S Richness')
 
 
 

@@ -596,6 +596,28 @@ summary(m_wet_vrai)
 Anova(m_wet_vrai, type='III')
 qqnorm(residuals(m_wet_vrai))
 
+
+#split elevation RAI 
+critter_wet_split <- critter_wet %>%
+  mutate(elev_group = ifelse(
+    elevation <= 5300,
+    "Low elevation",
+    "High elevation"))
+
+m_wet_vrai_low <- lmer(
+  Observed ~ Vicuna.RAI + (1 | latrine_trt_month),
+  data = filter(critter_wet_split, elev_group == "Low elevation"))
+summary(m_wet_vrai_low)
+Anova(m_wet_vrai_low, type='III')
+qqnorm(residuals(m_wet_vrai_low))
+
+m_wet_vrai_high <- lmer(
+  Observed ~ Vicuna.RAI + (1 | latrine_trt_month),
+  data = filter(critter_wet_split, elev_group == "High elevation"))
+summary(m_wet_vrai_high)
+Anova(m_wet_vrai_high, type='III')
+qqnorm(residuals(m_wet_vrai_high))
+
 #all vert richness
 m_wet_vertrich_rich<- lmer(Observed~Animal.Richness*elevation_sc+(1|latrine_trt_month), data=critter_wet)
 summary(m_wet_vertrich_rich)
