@@ -20,6 +20,8 @@ library(mctoolsr)
 library(rvg)
 library(officer)
 library(patchwork)
+library(RColorBrewer)
+library(cowplot)
 
 ## Elevation plots----
 #requires that you load in the metadata and phyloseq, then 
@@ -1285,6 +1287,10 @@ plot_ts_heatmap(Phy_relabRt, metaDryRGM, 0.01, "latrine_trt",colors=c('#fcfdbf',
 
 ##By sample 
 
+#make taxa a row
+Phy_relabLt$taxa<- row.names(Phy_relabLt)
+Phy_relabWt$taxa<- row.names(Phy_relabWt)
+Phy_relabRt$taxa<- row.names(Phy_relabRt)
 #set global color scheme with unique, consistent colors for taxa 
 all_taxa <- sort(unique(c(
   Phy_relabLt$taxa,  
@@ -1522,7 +1528,7 @@ dry_final_ab <- dry_avgab %>%
   group_by(phyL) %>% 
   mutate(latrine_ab_euk = sum(latrine_ab)) %>% 
   ungroup() %>% 
-  filter(!(phyC == 1 & phyL == 1)) %>% #remove Other taxa 
+  mutate(Phylum = ifelse(phyC == 1 & phyL == 1, "Other", Phylum)) %>% 
   select(control_ab_euk, latrine_ab_euk, Phylum) %>% 
   pivot_longer(
     cols = c(control_ab_euk, latrine_ab_euk),
@@ -1610,7 +1616,7 @@ wet_final_ab <- wet_avgab %>%
   group_by(phyL) %>% 
   mutate(latrine_ab_euk = sum(latrine_ab)) %>% 
   ungroup() %>% 
-  filter(!(phyC == 1 & phyL == 1)) %>% #remove Other taxa 
+  mutate(Phylum = ifelse(phyC == 1 & phyL == 1, "Other", Phylum)) %>% 
   select(control_ab_euk, latrine_ab_euk, Phylum) %>% 
   pivot_longer(
     cols = c(control_ab_euk, latrine_ab_euk),
@@ -1699,7 +1705,7 @@ lia_final_ab <- lia_avgab %>%
   group_by(phyL) %>% 
   mutate(latrine_ab_euk = sum(latrine_ab)) %>% 
   ungroup() %>% 
-  filter(!(phyC == 1 & phyL == 1)) %>% #remove Other taxa 
+  mutate(Phylum = ifelse(phyC == 1 & phyL == 1, "Other", Phylum)) %>% 
   select(control_ab_euk, latrine_ab_euk, Phylum) %>% 
   pivot_longer(
     cols = c(control_ab_euk, latrine_ab_euk),
@@ -1744,6 +1750,7 @@ allsoil$trt_soil <- factor(
     "latrine_ab_euk_dryRGM")) #order 
 
 write.csv(allsoil, '18S_allsoil_taxabar.csv')
+allsoil <- read_csv('18S_allsoil_taxabar.csv')
 
 ggplot(allsoil, aes(x=trt_soil, y=avg_rel_ab, fill=Phylum ))+
   geom_bar(stat='identity') +
@@ -1754,6 +1761,7 @@ ggplot(allsoil, aes(x=trt_soil, y=avg_rel_ab, fill=Phylum ))+
   scale_x_discrete(labels=c('Control LIA','Latrine LIA','Control Wet RGM','Latrine Wet RGM','Control Dry RGM','Latrine Dry RGM'))+
   theme(axis.text.x=element_text(angle=60, hjust=1))
 
+#Combined plot
 
 # subset combined data
 wet_sub_da <- allsoil %>%
@@ -1787,7 +1795,7 @@ p1 <- ggplot(wet_sub_da, aes(x = Treatment, y = avg_rel_ab, fill = Phylum)) +
     x = "",
     y = "Relative Abundance" ) +
   theme(axis.text.x=element_text(angle=60, hjust=1)) + 
-  theme()
+  theme(legend.position = 'none')
 
 
 # PLOT 2 — dry season
@@ -1801,12 +1809,8 @@ p2 <- ggplot(dry_sub_da, aes(x = Treatment, y = avg_rel_ab, fill = Phylum)) +
   theme(axis.text.x=element_text(angle=60, hjust=1)) + 
   theme()
 
-#combine into a single legend for plotting 
-legend <- get_legend(p1)
 
 #plot combined figure 
-final_plot <- plot_grid(
-  p1 + theme(legend.position = "none"),
-  p2 + theme(legend.position = "none"),
-  ncol = 2)
-plot_grid(final_plot, legend, rel_widths = c(4, 1))
+(p1 | p2) +
+  plot_annotation(title = "(b)", theme = theme(
+    plot.title = element_text(hjust = 0.5)))

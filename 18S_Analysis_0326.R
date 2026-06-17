@@ -1228,7 +1228,10 @@ wet_permutest <- permutest(wet_betadis, permutations = 999) #test for difference
 wet_permutest
 boxplot(wet_betadis)
 
-###wet chronosequence: 
+#pairwise to see which differ 
+permutest(wet_betadis, pairwise = TRUE, permutations = 999)
+
+###wet chronosequence:
 wet_betadis_chrono <- betadisper(distance(filt_rare_wet2, method = 'wunifrac'), group = metadata_wetF$trt_class, type = 'median') #create betadisper object with dispersion distances  
 wet_permutest_chrono <- permutest(wet_betadis_chrono, permutations = 999) #test for differences in dispersions 
 wet_permutest_chrono
