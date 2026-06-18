@@ -1453,8 +1453,7 @@ simper.results <- purrr::map_dfr(comparisons, function(comp) {
 
 #filter for significant 
 sig_asvs_chronoW <- simper.results %>%
-  filter(p <= 0.05) %>%
-  dplyr::select(ASV, average, Comparison, Position)
+  filter(p <= 0.05)
 
 #create a df of significant ASVs with taxonomy 
 taxachronoW <- as.data.frame(tax_table(filt_rare_wet2)) %>%
@@ -1462,7 +1461,7 @@ taxachronoW <- as.data.frame(tax_table(filt_rare_wet2)) %>%
 simper_taxa_chronoWsig <- simper.results %>%
   left_join(taxachronoW, by = c("ASV" = "ASV"))
 #grab top 10 only 
-simper_chronoW_top10 <- simper_taxa_chronoWsig %>%
+simper_chronoW_top10 <- sig_asvs_chronoW %>%
   group_by(Comparison) %>%
   arrange(desc(average)) %>%
   slice_head(n = 10) %>%
@@ -1509,13 +1508,13 @@ simper.results <- purrr::map_dfr(comparisons, function(comp) {
 
 #filter for significant 
 sig_asvs_chronoDRGM <- simper.results %>%
-  filter(p <= 0.05) %>%
-  dplyr::select(ASV, average, Comparison, Position)
+  filter(p <= 0.05)
+
 
 #create a df of significant ASVs with taxonomy 
 taxachronoDRGM <- as.data.frame(tax_table(filt_rare_RGM_dry)) %>%
   tibble::rownames_to_column("ASV")
-simper_taxa_chronoDRGMsig <- simper.results %>%
+simper_taxa_chronoDRGMsig <- sig_asvs_chronoDRGM %>%
   left_join(taxachronoDRGM, by = c("ASV" = "ASV"))
 #grab top 10 only 
 simper_chronoDRGM_top10 <- simper_taxa_chronoDRGMsig %>%
@@ -2084,35 +2083,6 @@ fig_phyl = phyl_fig %>%
   theme(axis.text.x=element_text())
 fig_phyl
 
-#### make that plot comparing simper and ancombc2 taxa----
-## try it first with lia vs rgm control
-
-LIA_RGM_taxa<- data.frame(tax_table(LIA_RGM_DAphy))
-
-soilAgeCC_taxa1<-LIA_RGM_taxa %>% 
-  filter(Genus=='Abditibacterium') %>% 
-  row.names()
-
-LIA_RGM_taxa %>% 
-  filter(Genus=='Blastocatella') %>% 
-  row.names()
-
-soilAgeCC_taxa1names<-both_names %>% 
-  filter(original %in% soilAgeCC_taxa1) 
-
-soilAgeCC_simp<-s[["control_rgm_control_lia"]]
-
-soilAgeCC_simp_taxa1<-soilAgeCC_simp %>% 
-  filter(row.names(soilAgeCC_simp) %in% soilAgeCC_taxa1names$number)
-#I looked at it to see if simper agrees that this taxa is more prevalent in control rgm
-#and it does for the most part (except for 4 asvs, and about half of the asvs are 0 for all the simper stats)
-
-sum(soilAgeCC_simp_taxa1$average)
-#express this as a proportion out of the total dissimilarity (sum of average column in total simper results?)
-
-## i need to do this for multiple taxa but im not sure how to simplify the process
-# and not have to do it 1 by 1 for each taxa. and we could show multiple comparisons on 
-# the plot so there is more going on but that makes the process even longer
 
 
 # Beta Diversity GENUS LEVEL ----
