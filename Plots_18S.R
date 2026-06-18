@@ -489,7 +489,7 @@ spscorW_top10 <- spscorW_top10 %>%
     tax_label = case_when(
       !is.na(Species) & Species != "" &
         !Species %in% c("Embryophyceae_XX", "Microthamniales_X", "Rotifera_XX",
-                        "Annelida_XX", "Chlamydomonadales_X") ~ Species,
+                        "Annelida_XX", "Chlamydomonadales_X", "Enoplea_X") ~ Species,
       !is.na(Genus) & Genus != "" &
         !Genus %in% c("Embryophyceae_X", "Heterotrichea_X",
                       "Annelida_X", "Rotifera_X") ~ Genus,
