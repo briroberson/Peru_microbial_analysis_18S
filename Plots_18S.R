@@ -1311,7 +1311,12 @@ all_taxa <- sort(unique(c(
   Phy_relabLt$taxa,  
   Phy_relabWt$taxa, 
   Phy_relabRt$taxa)))
-cols <- setNames(colorRampPalette(brewer.pal(11, "Set3"))(length(all_taxa)), all_taxa)
+cols <- setNames(colorRampPalette(brewer.pal(9, "Paired"))(length(all_taxa)), all_taxa)
+cols["Unassigned"] <- "grey"
+
+base_cols <- c( "#68CDA8", "#4ACD66" , "#6C9976", "#E8798B", "#9799E6","#F7A7A0", "#F0E68CFF", "#9C6EB0", "#C39DE0")
+cols <- setNames(colorRampPalette(base_cols)(length(all_taxa)), all_taxa)
+cols["Unassigned"] <- "grey"
 
 #LIA using phylum
 
@@ -1340,6 +1345,10 @@ label_vec <- setNames(
   sample_labels$latrine,
   sample_labels$sample)
 
+#rename unassigned at phylum level 
+Phy_relabLtlong <- Phy_relabLtlong %>%
+  mutate(taxa = if_else(taxa == "Eukaryota_X", "Unassigned", taxa))
+
 #plot
 ggplot(Phy_relabLtlong,
        aes(x = sample, y = value, fill = taxa)) +
@@ -1352,7 +1361,7 @@ ggplot(Phy_relabLtlong,
                  control = "Reference",
                  latrine = "Latrine" ))) +
   scale_x_discrete(labels = label_vec) +
-  labs(x = "Site", y = "Relative abundance", fill = "Phylum" ) +
+  labs(x = "Site", y = "Relative abundance", fill = "Phylum", title = "(b)") +
   scale_fill_manual(values = cols) +
   theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
@@ -1384,6 +1393,11 @@ label_vec <- setNames(
   sample_labels$latrine,
   sample_labels$sample)
 
+#rename unassigned at phylum level 
+Phy_relabWtlong <- Phy_relabWtlong %>%
+  mutate(taxa = if_else(taxa == "Eukaryota_X", "Unassigned", taxa))
+cols["Unassigned"] <- "grey"
+
 #plot
 ggplot(Phy_relabWtlong, aes(x = sample, y = value, fill = taxa)) +
   geom_bar(stat = "identity", position = "fill") +
@@ -1409,7 +1423,7 @@ ggplot(Phy_relabWtlong,
                  control = "Reference",
                  latrine = "Latrine" ))) +
   scale_x_discrete(labels = label_vec) +
-  labs(x = "Site", y = "Relative abundance", fill = "Phylum" ) +
+  labs(x = "Site", y = "Relative abundance", fill = "Phylum", title = "(b)") +
   scale_fill_manual(values = cols) +
   theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
@@ -1438,6 +1452,9 @@ sample_labels <- Phy_relabRtlong %>%
 label_vec <- setNames(
   sample_labels$latrine,
   sample_labels$sample)
+#rename unassigned at phylum level 
+Phy_relabRtlong <- Phy_relabRtlong %>%
+  mutate(taxa = if_else(taxa == "Eukaryota_X", "Unassigned", taxa))
 
 #plot
 ggplot(Phy_relabRtlong, aes(x = sample, y = value, fill = taxa)) +
@@ -1464,7 +1481,7 @@ ggplot(Phy_relabRtlong,
                  control = "Reference",
                  latrine = "Latrine" ))) +
   scale_x_discrete(labels = label_vec) +
-  labs(x = "Site", y = "Relative abundance", fill = "Phylum" ) +
+  labs(x = "Site", y = "Relative abundance", fill = "Phylum", title = '(b)') +
   scale_fill_manual(values = cols) +
   theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
