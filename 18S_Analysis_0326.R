@@ -495,14 +495,19 @@ metadata_crit<- metadata_filt %>%
   filter(treatment=='latrine') %>% 
   dplyr::select(c('latrine','Observed','Shannon','elevation','InvSimpson','Pielou','replicate','latrine_trt_month','month-collected','elevation'))
 
-critter_filt<-critter %>% 
-  left_join(metadata_crit, by='latrine')
+#critter_filt<-critter %>% 
+ # left_join(metadata_crit, by='latrine')
 
 
 #export as csv to finish combining data 
-write.csv(critter_filt, file='critter_data.csv')
+#write.csv(critter_filt, file='critter_data.csv')
 critter_data<- read.csv('critter_data.csv')
 critter_data$elevation_sc<- scale(critter_data$elevation)
+
+#make categorical variables factors 
+critter_data$latrine <- factor(critter_data$latrine)
+critter_data$latrine_trt_month <- factor(critter_data$latrine_trt_month)
+
 
 #add chronosequences
 metadata_filt<- metadata_filt %>% 
@@ -618,12 +623,26 @@ summary(m_wet_vrai_high)
 Anova(m_wet_vrai_high, type='III')
 qqnorm(residuals(m_wet_vrai_high))
 
-m_wet_vrai_both <- m_wet_vrai <- lmer(Observed ~ Vicuna.RAI * elev_group + (1 | latrine_trt_month),
-                                      data = critter_wet_split)
+#current working model 
+m_wet_vrai_both <- lmer(Observed ~ Vicuna.RAI * elev_group + (1 | latrine),
+                        data = critter_wet_split)
 summary(m_wet_vrai_both)
 Anova(m_wet_vrai_both, type='III')
-qqnorm(residuals(m_wet_vrai_high))
 
+
+#current working model - no double cameras 
+critter_wet_split2 <- critter_wet_split %>%
+  filter(!latrine %in% c("L81-1", "L81-2"))
+m_wet_vrai_both2 <- lmer(Observed ~ Vicuna.RAI * elev_group + (1 | latrine),
+                         data = critter_wet_split2)
+summary(m_wet_vrai_both2)
+Anova(m_wet_vrai_both2, type='III')
+
+ggplot(critter_wet_split, aes(x = latrine, y = Observed)) +
+  geom_jitter(width = 0.0005) + 
+  stat_summary(fun = mean, geom = "point", color = "red", size = 3) + 
+  labs(title = "18s variation between reps") + 
+  theme_bw()
 
 
 
@@ -1177,6 +1196,39 @@ permanova_pairwise(distance(filt_rare_wet2, method='wunifrac'), grp=metadata_wet
 wetChrono_pairwise_permanova <- permanova_pairwise(distance(filt_rare_wet2, method='wunifrac'), grp=metadata_wetF$trt_class, padj='holm')
 write.csv(wetChrono_pairwise_permanova, "18SwetChrono_pairwise_permanova.csv", row.names = FALSE)
 
+#subset by treatment 
+
+#latrines 
+metadata_wet2_lats<- metadata_wetF %>% 
+  filter(treatment == 'latrine')
+filt_rare_wet2_lats <- subset_samples(filt_rare_wet2, treatment == "latrine")
+#reorder the metadata to match the order of the phyloseq
+samp<- sample_data(filt_rare_wet2_lats) 
+metadata_wet2_lats<-metadata_wet2_lats[ order(match(metadata_wet2_lats$`SampleID`, row.names(samp))), ]
+
+adonis2(distance(filt_rare_wet2_lats, method='wunifrac')~class, data=metadata_wet2_lats, by='terms')
+permanova_pairwise(distance(filt_rare_wet2_lats, method='wunifrac'), grp=metadata_wet2_lats$class, padj='holm')
+#dispersions
+wet_betadis_lats <- betadisper(distance(filt_rare_wet2_lats, method = 'wunifrac'), group = metadata_wet2_lats$class, type = 'median')  
+permutest(wet_betadis_lats, permutations = 999) 
+boxplot(wet_betadis_lats)
+
+
+#controls 
+metadata_wet2_cont<- metadata_wetF %>% 
+  filter(treatment == 'control')
+filt_rare_wet2_cont <- subset_samples(filt_rare_wet2, treatment == "control")
+#reorder the metadata to match the order of the phyloseq
+samp<- sample_data(filt_rare_wet2_cont) 
+metadata_wet2_cont<-metadata_wet2_cont[ order(match(metadata_wet2_cont$`SampleID`, row.names(samp))), ]
+
+adonis2(distance(filt_rare_wet2_cont, method='wunifrac')~class, data=metadata_wet2_cont, by='terms')
+permanova_pairwise(distance(filt_rare_wet2_cont, method='wunifrac'), grp=metadata_wet2_cont$class, padj='holm')
+#dispersions
+wet_betadis_cont <- betadisper(distance(filt_rare_wet2_cont, method = 'wunifrac'), group = metadata_wet2_cont$class, type = 'median')  
+permutest(wet_betadis_cont, permutations = 999) 
+boxplot(wet_betadis_cont)
+
 
 ## RGM Subset Permanova----
 # 5f. RGM Permanova
@@ -1524,7 +1576,83 @@ simper_chronoDRGM_top10 <- simper_taxa_chronoDRGMsig %>%
   ungroup()
 write.csv(simper_chronoDRGM_top10, "18s_simper_chronDRGM_top10.csv", row.names = FALSE)
 
+#subset by treatment
 
+#latrines
+asvs_wet_lats <- as.data.frame(otu_table(filt_rare_wet2_lats)) #ASVs
+tASV_wet_lats <- data.frame(t(asvs_wet_lats), check.names = F)
+
+simper_chrono_wet_lats<- simper(tASV_wet_lats, metadata_wet2_lats$class)
+names(simper_chrono_wet_lats)
+
+#see only significant species
+comparisons <- c("1931-1962_LIA-1931", "1931-1962_1984-2024", "1931-1962_LIA", "LIA-1931_1984-2024", "LIA-1931_LIA", "1984-2024_LIA")
+
+simper.results <- purrr::map_dfr(comparisons, function(comp) {
+  
+  as.data.frame(simper_chrono_wet_lats[[comp]]) %>%
+    tibble::rownames_to_column("ASV") %>%
+    mutate(
+      Comparison = comp,
+      Position = row_number()
+    )
+})
+
+#filter for significant 
+sig_asvs_chronoW_lats <- simper.results %>%
+  filter(p <= 0.05) 
+
+
+#create a df of significant ASVs with taxonomy 
+taxachronoW_lats <- as.data.frame(tax_table(filt_rare_wet2_lats)) %>%
+  tibble::rownames_to_column("ASV")
+simper_taxa_chronoWsig_lats <- sig_asvs_chronoW_lats %>%
+  left_join(taxachronoW_lats, by = c("ASV" = "ASV"))
+#grab top 10 only 
+simper_chronoW_top10_lats <- simper_taxa_chronoWsig_lats %>%
+  group_by(Comparison) %>%
+  arrange(desc(average)) %>%
+  slice_head(n = 10) %>%
+  ungroup()
+write.csv(simper_chronoW_top10_lats, "18s_simper_chronoW_top10_lats.csv", row.names = FALSE)
+
+#controls 
+asvs_wet_cont <- as.data.frame(otu_table(filt_rare_wet2_cont)) #ASVs
+tASV_wet_cont <- data.frame(t(asvs_wet_cont), check.names = F)
+
+simper_chrono_wet_cont<- simper(tASV_wet_cont, metadata_wet2_cont$class)
+names(simper_chrono_wet_cont)
+
+#see only significant species
+comparisons <- c("LIA-1931_1931-1962", "LIA-1931_1984-2024", "LIA-1931_LIA", "1931-1962_1984-2024", "1931-1962_LIA", "1984-2024_LIA")
+
+simper.results <- purrr::map_dfr(comparisons, function(comp) {
+  
+  as.data.frame(simper_chrono_wet_cont[[comp]]) %>%
+    tibble::rownames_to_column("ASV") %>%
+    mutate(
+      Comparison = comp,
+      Position = row_number()
+    )
+})
+
+#filter for significant 
+sig_asvs_chronoW_cont <- simper.results %>%
+  filter(p <= 0.05) 
+
+
+#create a df of significant ASVs with taxonomy 
+taxachronoW_cont <- as.data.frame(tax_table(filt_rare_wet2_cont)) %>%
+  tibble::rownames_to_column("ASV")
+simper_taxa_chronoWsig_cont <- sig_asvs_chronoW_cont %>%
+  left_join(taxachronoW_cont, by = c("ASV" = "ASV"))
+#grab top 10 only 
+simper_chronoW_top10_cont <- simper_taxa_chronoWsig_cont %>%
+  group_by(Comparison) %>%
+  arrange(desc(average)) %>%
+  slice_head(n = 10) %>%
+  ungroup()
+write.csv(simper_chronoW_top10_cont, "18s_simper_chronoW_top10_cont.csv", row.names = FALSE)
 
 
 

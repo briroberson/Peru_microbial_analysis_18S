@@ -138,6 +138,21 @@ ggplot(critter_wet, aes(x=Vicuna.RAI, y=Observed, color = elevation)) +
   labs(title = "RAI v eukaryote richness") + 
   theme+
   theme_bw()
+ggplot(critter_wet, aes(x=elevation, y=Observed, color = Vicuna.RAI)) + 
+  geom_point(size = 3, aes(color = Vicuna.RAI)) + 
+  geom_smooth(method = 'lm', color = "black", fill = "lightgray", alpha = 0.2) + 
+  scale_color_gradient(low = '#2b83ba', high = '#d7191c') + 
+  labs(title = "RAI v eukaryote richness") + 
+  theme+
+  theme_bw()
+ggplot(critter_wet_split, aes(x=Vicuna.RAI, y=Observed, color = Vicuna.RAI)) + 
+  geom_point(size = 3, aes(color = Vicuna.RAI)) + 
+  geom_smooth(method = 'lm', color = "black", fill = "lightgray", alpha = 0.2) + 
+  scale_color_gradient(low = '#2b83ba', high = '#d7191c') + 
+  labs(title = "RAI v eukaryote richness") + 
+  facet_wrap(~elev_group) + 
+  theme+
+  theme_bw()
 
 #or 3d 
 library (plotly)
