@@ -131,6 +131,10 @@ ggplot(metaDryRGM_both, aes(x=elevation, y=InvSimpson, color=treatment))+
   labs(title='RGM Dry Pielou')
 
 ###RAI 
+
+critter_wet_split$elev_group <- factor(
+  critter_wet_split$elev_group,
+  levels = c("Low elevation", "High elevation"))
 ggplot(critter_wet, aes(x=Vicuna.RAI, y=Observed, color = elevation)) + 
   geom_point(size = 3, aes(color = elevation), alpha = 0.7) + 
   geom_smooth(method = 'lm', color = "purple3", fill = "purple3", alpha = 0.2) + 
@@ -145,15 +149,23 @@ ggplot(critter_wet, aes(x=elevation, y=Observed, color = Vicuna.RAI)) +
   labs(title = "RAI v eukaryote richness") + 
   theme+
   theme_bw()
-ggplot(critter_wet_split, aes(x=Vicuna.RAI, y=Observed, color = Vicuna.RAI)) + 
-  geom_point(size = 3, aes(color = Vicuna.RAI)) + 
+ggplot(critter_wet_split2, aes(x=Vicuna.RAI, y=Observed)) + 
+  geom_point(size = 3, alpha = 0.8, aes(color = elevation)) + 
+  scale_color_gradient(low ="#87CEEB", high = "#F0E68CFF") + 
   geom_smooth(method = 'lm', color = "black", fill = "lightgray", alpha = 0.2) + 
-  scale_color_gradient(low = '#2b83ba', high = '#d7191c') + 
-  labs(title = "RAI v eukaryote richness") + 
+  labs(title = "(b)", x = 'RAI', y = 'Eukaryote richness') + 
   facet_wrap(~elev_group) + 
-  theme+
-  theme_bw()
+  labs(
+   title = "(b)",
+   x = "Vicuña relative abundance index (RAI)",
+   y = "Eukaryote richness",
+   color = "Elevation (m.a.s.l.)") + 
+  theme_bw() + 
+  theme
 
+
+
+base_cols <- c( "#68CDA8", "#4ACD66" , "#6C9976", "#E8798B", "#9799E6","#F7A7A0", "#F0E68CFF", "#9C6EB0", "#C39DE0")
 #or 3d 
 library (plotly)
 rai_3d_wet <- plot_ly(critter_wet, x = ~Vicuna.RAI, y = ~elevation, z = ~Observed, 
@@ -225,10 +237,10 @@ ggplot(metadata_wet, aes(class, Observed)) +
 
 #or grouped by class 
 wetrich_chrono_plot <- ggplot(metadata_wet, aes(treatment, Observed)) +
-  geom_boxplot(alpha = 0.5, aes(fill=treatment)) + #adds boxplot
+  geom_boxplot( aes(fill=treatment)) + #adds boxplot
   geom_point(size = 3, aes(color=elevation), alpha = .7) + #adds the individual points
   labs(x = NULL, y = NULL, title = "c)") +
-  scale_fill_manual(values=c('cyan3','purple3'), guide='none')+ #colors the two different treatments
+  scale_fill_manual(values=c("#4DD7CE","#9C6EB0"), guide='none')+ #colors the two different treatments
   scale_color_gradient(low='lightgray', high='black')+ #colors elevation so low values are lighter
   scale_x_discrete(labels = c(
     control = "Reference",
@@ -261,10 +273,10 @@ ggplot(metadata_wet, aes(class, Shannon)) +
   facet_wrap(~treatment)
 #or grouped by class 
 ggplot(metadata_wet, aes(treatment, Shannon)) +
-  geom_boxplot(alpha = 0.5, aes(fill=treatment)) + #adds boxplot
+  geom_boxplot(aes(fill=treatment)) + #adds boxplot
   geom_point(size = 3, aes(color=elevation), alpha = .7) + #adds the individual points
   labs(x = NULL, y = "Shannon's Diversity", title = "a) 18S Alpha Diversity") +
-  scale_fill_manual(values=c('cyan3','purple3'), guide='none')+ #colors the two different treatments
+  scale_fill_manual(values=c("#4DD7CE","#9C6EB0"), guide='none')+ #colors the two different treatments
   scale_color_gradient(low='lightgray', high='black')+ #colors elevation so low values are lighter
   theme_bw() +
   theme+
@@ -354,10 +366,10 @@ ggplot(metaDryRGM_both, aes(class, Observed)) +
 
 #or by class 
 dryrich_chrono_plot <- ggplot(metaDryRGM_both, aes(treatment, Observed)) +
-  geom_boxplot(alpha = 0.5, aes(fill=treatment)) + #adds boxplot
+  geom_boxplot(aes(fill=treatment)) + #adds boxplot
   geom_point(size = 3, aes(color=elevation), alpha = .7) + #adds the individual points
   labs(x = NULL, y = NULL, title = "d)") +
-  scale_fill_manual(values=c('cyan3','purple3'), guide='none')+ #colors the two different treatments
+  scale_fill_manual(values=c("#4DD7CE","#9C6EB0"), guide='none')+ #colors the two different treatments
   scale_color_gradient(low='lightgray', high='black')+ #colors elevation so low values are lighter
   scale_x_discrete(labels = c(
     control = "Reference",
