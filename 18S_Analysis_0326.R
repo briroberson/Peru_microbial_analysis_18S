@@ -1512,12 +1512,15 @@ taxachronoW <- as.data.frame(tax_table(filt_rare_wet2)) %>%
   tibble::rownames_to_column("ASV")
 simper_taxa_chronoWsig <- simper.results %>%
   left_join(taxachronoW, by = c("ASV" = "ASV"))
-#grab top 10 only 
-simper_chronoW_top10 <- sig_asvs_chronoW %>%
+#grab top 5 only 
+simper_chronoW_top5 <- sig_asvs_chronoW %>%
   group_by(Comparison) %>%
   arrange(desc(average)) %>%
-  slice_head(n = 10) %>%
+  slice_head(n = 5) %>%
   ungroup()
+
+saveRDS(simper_chronoW_top5, file = "18s_simper_chronoW_top5.rds")
+simper_chronoW_top5 <- readRDS("18s_simper_chronoW_top5.rds")
 write.csv(simper_chronoW_top10, "18s_simper_chronoW_top10.csv", row.names = FALSE)
 
 
@@ -1615,6 +1618,7 @@ simper_chronoW_top10_lats <- simper_taxa_chronoWsig_lats %>%
   slice_head(n = 10) %>%
   ungroup()
 write.csv(simper_chronoW_top10_lats, "18s_simper_chronoW_top10_lats.csv", row.names = FALSE)
+
 
 #controls 
 asvs_wet_cont <- as.data.frame(otu_table(filt_rare_wet2_cont)) #ASVs
