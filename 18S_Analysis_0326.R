@@ -513,6 +513,8 @@ critter_data$latrine_trt_month <- factor(critter_data$latrine_trt_month)
 metadata_filt<- metadata_filt %>% 
   full_join(chrono, by='latrine')
 
+#export for other analyses 
+write.csv(metadata_filt, file='18s_metadata_filt.csv')
 
 ############ make the things going into the models factors
 ## Wet Subset Models ----
@@ -1513,7 +1515,7 @@ taxachronoW <- as.data.frame(tax_table(filt_rare_wet2)) %>%
 simper_taxa_chronoWsig <- simper.results %>%
   left_join(taxachronoW, by = c("ASV" = "ASV"))
 #grab top 5 only 
-simper_chronoW_top5 <- sig_asvs_chronoW %>%
+simper_chronoW_top5 <- simper_taxa_chronoWsig %>%
   group_by(Comparison) %>%
   arrange(desc(average)) %>%
   slice_head(n = 5) %>%
@@ -1522,6 +1524,19 @@ simper_chronoW_top5 <- sig_asvs_chronoW %>%
 saveRDS(simper_chronoW_top5, file = "18s_simper_chronoW_top5.rds")
 simper_chronoW_top5 <- readRDS("18s_simper_chronoW_top5.rds")
 write.csv(simper_chronoW_top10, "18s_simper_chronoW_top10.csv", row.names = FALSE)
+
+#join rep-seqz to blast sequences 
+#read in sequences 
+rep_seqs <- read_qza("Peru_18s_0326_rep-seqs.qza")$data
+seq_df <- data.frame(
+  original = names(rep_seqs),
+  Sequence = as.character(rep_seqs),
+  stringsAsFactors = FALSE)
+
+simper_chronoW_top10_blast <- simper_chronoW_top10 %>%
+  left_join(both_names, by = c("ASV" = "number"))%>%
+  left_join(seq_df, by = "original")
+
 
 
 ##dry season (RGM)

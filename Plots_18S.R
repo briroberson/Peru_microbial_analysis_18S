@@ -132,9 +132,10 @@ ggplot(metaDryRGM_both, aes(x=elevation, y=InvSimpson, color=treatment))+
 
 ###RAI 
 
-critter_wet_split$elev_group <- factor(
-  critter_wet_split$elev_group,
+critter_wet_split2$elev_group <- factor(
+  critter_wet_split2$elev_group,
   levels = c("Low elevation", "High elevation"))
+
 ggplot(critter_wet, aes(x=Vicuna.RAI, y=Observed, color = elevation)) + 
   geom_point(size = 3, aes(color = elevation), alpha = 0.7) + 
   geom_smooth(method = 'lm', color = "purple3", fill = "purple3", alpha = 0.2) + 
@@ -152,8 +153,8 @@ ggplot(critter_wet, aes(x=elevation, y=Observed, color = Vicuna.RAI)) +
 ggplot(critter_wet_split2, aes(x = Vicuna.RAI, y = Observed)) + 
   geom_point(size = 3, aes(color = elevation)) + 
   scale_color_gradient(
-    low = "#5281B0",
-    high = "#fae100" ,
+    low = "#4f8078",
+    high = "#db8a69" ,
     name = "Elevation") +
   ggnewscale::new_scale_color() +
   geom_smooth(
@@ -162,17 +163,17 @@ ggplot(critter_wet_split2, aes(x = Vicuna.RAI, y = Observed)) +
     alpha = 0.3 , linewidth = 1.5) +
   scale_color_manual(
     values = c(
-      "Low elevation" = "#87CEEB",
-      "High elevation" = "#F0E68CFF"),
+      "Low elevation" = "#5D978E",
+      "High elevation" =  "#FFA07A" ),
     guide = "none") +
   scale_fill_manual(
     values = c(
-      "Low elevation" = "#87CEEB",
-      "High elevation" = "#F0E68CFF"),
+      "Low elevation" = "#5D978E",
+      "High elevation" =  "#FFA07A" ),
     guide = "none" ) +
   facet_wrap(~elev_group) +
   labs(
-    title = "(b)",
+    tag = "(b)",
     x = "RAI",
     y = "Eukaryote richness") +
   theme_bw() +
@@ -184,8 +185,11 @@ ggplot(critter_wet_split2, aes(x = Vicuna.RAI, y = Observed)) +
         axis.text.x = element_text(size = 16),
         axis.text.y = element_text(size = 16),
         axis.title.x = element_text(size = 18, face = "bold", color = "black"),
-        plot.margin = unit(c(0.1,0.1,0,0.1),"cm"))
-
+        plot.margin = unit(c(0.1,0.1,0,0.1),"cm")) + 
+  theme(
+    plot.tag = element_text(face = "bold", size = 18),
+    plot.tag.position = c(0.02, 0.99)) 
+#export 800 x 600
 
 
 base_cols <- c( "#68CDA8", "#4ACD66" , "#6C9976", "#E8798B", "#9799E6","#F7A7A0", "#F0E68CFF", "#9C6EB0", "#C39DE0")
@@ -262,7 +266,7 @@ ggplot(metadata_wet, aes(class, Observed)) +
 wetrich_chrono_plot <- ggplot(metadata_wet, aes(treatment, Observed)) +
   geom_boxplot(aes(fill=treatment)) + #adds boxplot
   geom_point(size = 3, aes(color=elevation), alpha = .7) + #adds the individual points
-  labs(x = NULL, y = NULL, title = "b)") +
+  labs(x = NULL, y = NULL, tag = "(b)") +
   scale_fill_manual(values=c("#4DD7CE","#9C6EB0"), guide='none')+ #colors the two different treatments
   scale_color_gradient(low='lightgray', high='black')+ #colors elevation so low values are lighter
   scale_x_discrete(labels = c(
@@ -279,8 +283,13 @@ wetrich_chrono_plot <- ggplot(metadata_wet, aes(treatment, Observed)) +
         axis.text.y = element_text(size = 16),
         axis.title.x = element_text(size = 18, face = "bold", color = "black"),
         plot.margin = unit(c(0.1,0.1,0,0.1),"cm"))+
-  facet_wrap(~class, nrow = 1)
+  facet_wrap(~class, nrow = 1) + 
+  theme(
+    plot.tag = element_text(face = "bold", size = 18),
+    plot.tag.position = c(0.02, 0.99)) 
 wetrich_chrono_plot
+#export 1000 x 600
+
 
 
 
@@ -619,7 +628,7 @@ wetbeta_chrono<-ggplot(metadata_wetF, aes(axis01, axis02)) +
     labels = class_labels) + 
   xlab(paste0("PCoA 1 (", var_exp[1], "%)")) +
   ylab(paste0("PCoA 2 (", var_exp[2], "%)")) + 
-  labs(title='(b)', color = NULL) +
+  labs(tag = '(b)', color = NULL) +
   theme_bw() +
   theme(
     panel.border = element_blank(),
@@ -627,7 +636,7 @@ wetbeta_chrono<-ggplot(metadata_wetF, aes(axis01, axis02)) +
     plot.title = element_text(size = 16, hjust = 0.5),
     axis.title.y = element_text(face="bold", size = 18), 
     axis.text.y = element_text(size = 16),
-    axis.title.x = element_text(size = 18, face = "bold",color = "black"),
+    axis.title.x = element_text(size = 18, face = "bold", color = "black"),
     plot.margin = unit(c(0.1,0.1,0,0.1),"cm") ,
     legend.position = "right",
     legend.text = element_text(size = 14, face = "bold"),
@@ -645,9 +654,12 @@ wetbeta_chrono<-ggplot(metadata_wetF, aes(axis01, axis02)) +
   guides(
     colour = guide_legend(override.aes = list(size = 2.75)),
     fill = guide_legend(override.aes = list(alpha = 0.2))) + 
-  theme(legend.position = "none")
+  theme(legend.position = "none") + 
+  theme(
+    plot.tag = element_text(face = "bold", size = 18),
+    plot.tag.position = c(0.02, 0.99)) 
 wetbeta_chrono
-
+#export 1000 x 600
 
 
 #the geom_segment code is used to add arrows to the plot. currently, it is plotting all
