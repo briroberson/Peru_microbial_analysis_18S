@@ -1428,7 +1428,7 @@ label_vec <- setNames(
 Phy_relabLtlong <- Phy_relabLtlong %>%
   mutate(taxa = if_else(taxa == "Eukaryota_X", "Unassigned", taxa))
 
-#plot
+#plot - 1275 x 680
 ggplot(Phy_relabLtlong,
        aes(x = sample, y = value, fill = taxa)) +
   geom_bar(stat = "identity", position = "fill") +
@@ -1440,8 +1440,9 @@ ggplot(Phy_relabLtlong,
                  control = "Reference",
                  latrine = "Latrine" ))) +
   scale_x_discrete(labels = label_vec) +
-  labs(x = "Site", y = "Relative abundance", fill = "Phylum", title = "(b)") +
+  labs(x = "Site", y = "Relative abundance", fill = "Phylum", tag = "(b)") +
   scale_fill_manual(values = cols)  +
+  ggtitle("18S") + 
   theme_bw() +
   theme(
     plot.title = element_text(size = 16, hjust = 0.5),
@@ -1464,7 +1465,10 @@ ggplot(Phy_relabLtlong,
       linewidth = 0.5)) + 
   guides(fill = guide_legend(
     ncol = 1,          
-    byrow = TRUE))
+    byrow = TRUE)) + 
+  theme(plot.title = element_text(size = 18, hjust = 0.5, face = "bold"),
+    plot.tag = element_text(face = "bold", size = 18),
+    plot.tag.position = c(0.02, 0.99)) 
 
 #RGM Wet
 
@@ -1498,7 +1502,7 @@ Phy_relabWtlong <- Phy_relabWtlong %>%
   mutate(taxa = if_else(taxa == "Eukaryota_X", "Unassigned", taxa))
 cols["Unassigned"] <- "grey"
 
-#plot
+#plot 1275 x 680
 ggplot(Phy_relabWtlong, 
        aes(x = sample, y = value, fill = taxa)) +
   geom_bar(stat = "identity", position = "fill") +
@@ -1510,14 +1514,15 @@ ggplot(Phy_relabWtlong,
                  control = "Reference",
                  latrine = "Latrine" ))) +
   scale_x_discrete(labels = label_vec) +
-  labs(x = "Site", y = "Relative abundance", fill = "Phylum", title = "(b)") +
+  labs(x = "Site", y = "Relative abundance", fill = "Phylum", tag = "(b)") +
   scale_fill_manual(values = cols) +
   theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+  ggtitle("18S") + 
   theme_bw() +
   theme(
     plot.title = element_text(size = 16, hjust = 0.5),
     axis.title.y = element_text(face="bold", size = 18), 
-    axis.text.x = element_text(size = 12),
+    axis.text.x = element_text(size = 10),
     axis.text.y = element_text(size = 16),
     axis.title.x = element_text(size = 18, face = "bold",color = "black"),
     plot.margin = unit(c(0.1,0.1,0,0.1),"cm") ,
@@ -1535,7 +1540,11 @@ ggplot(Phy_relabWtlong,
       linewidth = 0.5)) + 
   guides(fill = guide_legend(
     ncol = 1,          
-    byrow = TRUE))
+    byrow = TRUE)) + 
+  theme(plot.title = element_text(size = 18, hjust = 0.5, face = "bold"),
+        plot.tag = element_text(face = "bold", size = 18),
+        plot.tag.position = c(0.02, 0.99)) 
+
 
 
 
@@ -1580,27 +1589,36 @@ ggplot(Phy_relabRtlong,
                  control = "Reference",
                  latrine = "Latrine" ))) +
   scale_x_discrete(labels = label_vec) +
-  labs(x = "Site", y = "Relative abundance", fill = "Phylum", title = '(b)') +
+  labs(x = "Site", y = "Relative abundance", fill = "Phylum", tag = '(b)') +
   scale_fill_manual(values = cols) +
   theme(axis.text.x = element_text(angle = 60, hjust = 1))  +
+  ggtitle("18S") + 
   theme_bw() +
   theme(
     plot.title = element_text(size = 16, hjust = 0.5),
     axis.title.y = element_text(face="bold", size = 18), 
-    axis.text.x = element_text(size = 16),
+    axis.text.x = element_text(size = 10),
     axis.text.y = element_text(size = 16),
     axis.title.x = element_text(size = 18, face = "bold",color = "black"),
     plot.margin = unit(c(0.1,0.1,0,0.1),"cm") ,
+    strip.text = element_text(face = "bold", size = 16),
     legend.position = "right",
-    legend.text = element_text(size = 14, face = "bold"),
-    legend.title = element_text(size = 15, face = "bold"),
-    legend.key.width = unit(0.4, "cm"),
-    legend.key.height = unit(0.7, "cm"),
-    legend.spacing.y = unit(0.5, "cm"),
+    legend.text = element_text(size = 10, face = "bold"),
+    legend.title = element_text(size = 14, face = "bold"),
+    legend.key.width = unit(0.3, "cm"),
+    legend.key.height = unit(0.3, "cm"),
+    legend.spacing.x = unit(0.2, "cm"),
+    legend.spacing.y = unit(0.1, "cm"),
     legend.background = element_rect(
       colour = "black",
       fill = "white",
-      linewidth = 0.5))
+      linewidth = 0.5)) + 
+  guides(fill = guide_legend(
+    ncol = 1,          
+    byrow = TRUE)) + 
+  theme(plot.title = element_text(size = 18, hjust = 0.5, face = "bold"),
+        plot.tag = element_text(face = "bold", size = 18),
+        plot.tag.position = c(0.02, 0.99)) 
 
 
 
@@ -2009,3 +2027,56 @@ p2 <- ggplot(dry_sub_da, aes(x = Treatment, y = avg_rel_ab, fill = Phylum)) +
 (p1 | p2) +
   plot_annotation(title = "(b)", theme = theme(
     plot.title = element_text(hjust = 0.5)))
+
+
+#ALL together with matching facets 
+#add 'panel' variable to map to panels later & combine data subsets 
+wet_sub_da <- wet_sub_da %>%
+  mutate(panel = if_else(Soil == "LIA", "lia", "rgm"))
+
+dry_sub_da <- dry_sub_da %>%
+  mutate(
+    Soil = "RGM",
+    panel = "dry_RGM")
+
+all_sub_da <- bind_rows(wet_sub_da, dry_sub_da)
+all_sub_da$panel <- factor(all_sub_da$panel, levels = c("lia", "rgm", "dry_RGM"))
+
+p_combined <- ggplot(all_sub_da,aes(x = Treatment, y = avg_rel_ab, fill = Phylum)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(
+    ~panel,
+    nrow = 1,
+    labeller = labeller(panel = c(
+      lia = "Wet season LIA",
+      rgm = "Wet season RGM",
+      dry_RGM = "Dry season RGM"))) +
+  labs(tag = "(b)") + 
+  scale_fill_manual(values = cols, drop = FALSE) +
+  labs( x = "", y = "Relative abundance") +
+  theme_bw() +
+  theme(
+    strip.text = element_text(face = "bold", size = 16),
+    axis.title.y = element_text(face = "bold", size = 18),
+    axis.title.x = element_text(face = "bold", size = 18),
+    axis.text.x = element_text(angle = 60, hjust = 1, size = 10),
+    axis.text.y = element_text(size = 16),
+    legend.position = "bottom",
+    legend.text = ggtext::element_markdown(size = 10, face = "bold"),
+    legend.title = element_text(size = 14, face = "bold"),
+    legend.key.width = unit(0.3, "cm"),
+    legend.key.height = unit(0.3, "cm"),
+    legend.spacing.x = unit(0.2, "cm"),
+    legend.spacing.y = unit(0.1, "cm"),
+    legend.background = element_rect(
+      colour = "black",
+      fill = "white",
+      linewidth = 0.5)) + 
+  ggtitle("18s") + 
+  theme(plot.title = element_text(size = 18, hjust = 0.5, face = "bold"),
+        plot.tag = element_text(face = "bold", size = 18),
+        plot.tag.position = c(0.02, 0.99)) 
+p_combined
+#export 675 x 800
+
+
