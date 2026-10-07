@@ -34,10 +34,31 @@ wetrichel<-ggplot(metadata_wet, aes(x=elevation, y=Observed, color=treatment))+
   geom_point()+
   geom_smooth(method='lm')+
   scale_color_manual(values=c('cyan3','purple3'))+
-  labs(title='18S Wet Richness')+
+  labs(title='Wet Richness', tag = "(b)", x = "Elevation", y = "Eukaryote richness", color = "Substrate type")+
+  ggtitle("18s") +
+  scale_color_manual(
+    values = c(control = "cyan3", latrine = "purple3"),
+    labels = c(
+      control = "Reference",
+      latrine = "Latrine"
+    )
+  ) +
   theme+
-  theme_bw()
+  theme_bw() + 
+  theme(strip.text = element_text(face = "bold", size = 16), 
+        legend.title = element_text(size = 14, face = "bold"), 
+        legend.text = element_text(size = 12, face = "bold"), 
+        plot.title = element_text(size = 16, hjust = 0.5),
+        axis.title.y = element_text(face="bold", size = 18), 
+        axis.text.x = element_text(size = 16),
+        axis.text.y = element_text(size = 16),
+        axis.title.x = element_text(size = 18, face = "bold", color = "black"),
+        plot.margin = unit(c(0.1,0.1,0,0.1),"cm"))+
+  theme(plot.title = element_text(size = 18, hjust = 0.5, face = "bold"), 
+        plot.tag = element_text(face = "bold", size = 18),
+        plot.tag.position = c(0.02, 0.99)) 
 wetrichel
+
 #export the plot to a powerpoint to edit
 fig_dml<- rvg::dml(ggobj = wetrichel)
 
@@ -132,10 +153,6 @@ ggplot(metaDryRGM_both, aes(x=elevation, y=InvSimpson, color=treatment))+
 
 ###RAI 
 
-critter_wet_split2$elev_group <- factor(
-  critter_wet_split2$elev_group,
-  levels = c("Low elevation", "High elevation"))
-
 ggplot(critter_wet, aes(x=Vicuna.RAI, y=Observed, color = elevation)) + 
   geom_point(size = 3, aes(color = elevation), alpha = 0.7) + 
   geom_smooth(method = 'lm', color = "purple3", fill = "purple3", alpha = 0.2) + 
@@ -150,6 +167,24 @@ ggplot(critter_wet, aes(x=elevation, y=Observed, color = Vicuna.RAI)) +
   labs(title = "RAI v eukaryote richness") + 
   theme+
   theme_bw()
+
+
+# extract slope p values 
+slopes <- emtrends(m_wet_vrai_both2, ~ elev_group, var = "Vicuna.RAI")
+summary(slopes, infer = TRUE)   # gives estimate, CI, and p-value per group
+
+crit_slopes_df <- 
+  data.frame(
+    elev_group = 
+      c("Low elevation", "High elevation"),
+    label = 
+      c("β = 73.5, p = 0.017*", "β = -20.6, p = 0.38"))  # fill in from emtrends output
+
+critter_wet_split2$elev_group <- factor(
+  critter_wet_split2$elev_group,
+  levels = c("Low elevation", "High elevation")
+)
+
 ggplot(critter_wet_split2, aes(x = Vicuna.RAI, y = Observed)) + 
   geom_point(size = 3, aes(color = elevation)) + 
   scale_color_gradient(
@@ -176,6 +211,13 @@ ggplot(critter_wet_split2, aes(x = Vicuna.RAI, y = Observed)) +
     tag = "(b)",
     x = "RAI",
     y = "Eukaryote richness") +
+  geom_text(
+    data = crit_slopes_df,
+    aes(x = -Inf, y = Inf, label = label),
+    hjust = -0.1, vjust = 1.5,
+    inherit.aes = FALSE,
+    fontface = "bold", size = 5
+  ) +
   theme_bw() +
   theme(strip.text = element_text(face = "bold", size = 16), 
         legend.title = element_text(size = 14, face = "bold"), 
@@ -189,7 +231,7 @@ ggplot(critter_wet_split2, aes(x = Vicuna.RAI, y = Observed)) +
   theme(
     plot.tag = element_text(face = "bold", size = 18),
     plot.tag.position = c(0.02, 0.99)) 
-#export 800 x 600
+#export 1000 x 600
 
 
 base_cols <- c( "#68CDA8", "#4ACD66" , "#6C9976", "#E8798B", "#9799E6","#F7A7A0", "#F0E68CFF", "#9C6EB0", "#C39DE0")
@@ -266,13 +308,14 @@ ggplot(metadata_wet, aes(class, Observed)) +
 wetrich_chrono_plot <- ggplot(metadata_wet, aes(treatment, Observed)) +
   geom_boxplot(aes(fill=treatment)) + #adds boxplot
   geom_point(size = 3, aes(color=elevation), alpha = .7) + #adds the individual points
-  labs(x = NULL, y = NULL, tag = "(b)") +
+  labs(x = NULL, y = NULL, tag = "(d)") +
   scale_fill_manual(values=c("#4DD7CE","#9C6EB0"), guide='none')+ #colors the two different treatments
   scale_color_gradient(low='lightgray', high='black')+ #colors elevation so low values are lighter
   scale_x_discrete(labels = c(
     control = "Reference",
     latrine = "Latrine")) +
   labs(color = "Elevation") + 
+  ggtitle("18s") + 
   theme_bw() +
   theme(strip.text = element_text(face = "bold", size = 16), 
         legend.title = element_text(size = 14, face = "bold"), 
@@ -284,11 +327,18 @@ wetrich_chrono_plot <- ggplot(metadata_wet, aes(treatment, Observed)) +
         axis.title.x = element_text(size = 18, face = "bold", color = "black"),
         plot.margin = unit(c(0.1,0.1,0,0.1),"cm"))+
   facet_wrap(~class, nrow = 1) + 
-  theme(
+  theme(plot.title = element_text(size = 18, hjust = 0.5, face = "bold"), 
     plot.tag = element_text(face = "bold", size = 18),
     plot.tag.position = c(0.02, 0.99)) 
 wetrich_chrono_plot
-#export 1000 x 600
+
+
+#combine with wet richness regression plot
+wetrichel + wetrich_chrono_plot
+
+
+
+#export 2000 x 600
 
 
 
