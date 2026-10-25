@@ -1454,7 +1454,9 @@ simper.results %>%
 
 ### See Plots_18S file for code that plots these ASVs as arrows
 
-###Simper across chronosequence classes 
+
+
+### Simper across chronosequence classes 
 
 ##wet season
 asvs_wet <- as.data.frame(otu_table(filt_rare_wet2)) #ASVs
@@ -1512,16 +1514,22 @@ sig_asvs_chronoW <- simper.results %>%
 #create a df of significant ASVs with taxonomy 
 taxachronoW <- as.data.frame(tax_table(filt_rare_wet2)) %>%
   tibble::rownames_to_column("ASV")
-simper_taxa_chronoWsig <- simper.results %>%
-  left_join(taxachronoW, by = c("ASV" = "ASV"))
-#grab top 5 only 
-simper_chronoW_top5 <- simper_taxa_chronoWsig %>%
-  group_by(Comparison) %>%
-  arrange(desc(average)) %>%
-  slice_head(n = 5) %>%
-  ungroup()
+simper_taxa_chronoWsig <- sig_asvs_chronoW %>%
+  left_join(taxachronoW, by = "ASV")
 
-saveRDS(simper_chronoW_top5, file = "18s_simper_chronoW_top5.rds")
+# grab top 10 overall only (choosing max avg within ASVs)
+simper_chronoW_top10 <- simper_taxa_chronoWsig %>%
+  group_by(ASV) %>%
+  slice_max(
+    order_by = average,
+    n = 1,
+    with_ties = FALSE
+  ) %>%
+  ungroup() %>%
+  arrange(desc(average)) %>%
+  slice_head(n = 10)
+
+saveRDS(simper_chronoW_top10, file = "18s_simper_chronoW_top10all.rds")
 simper_chronoW_top5 <- readRDS("18s_simper_chronoW_top5.rds")
 write.csv(simper_chronoW_top10, "18s_simper_chronoW_top10.csv", row.names = FALSE)
 
@@ -1586,13 +1594,19 @@ taxachronoDRGM <- as.data.frame(tax_table(filt_rare_RGM_dry)) %>%
   tibble::rownames_to_column("ASV")
 simper_taxa_chronoDRGMsig <- sig_asvs_chronoDRGM %>%
   left_join(taxachronoDRGM, by = c("ASV" = "ASV"))
+
 #grab top 10 only 
 simper_chronoDRGM_top10 <- simper_taxa_chronoDRGMsig %>%
-  group_by(Comparison) %>%
+  group_by(ASV) %>%
+  slice_max(
+    order_by = average,
+    n = 1,
+    with_ties = FALSE
+  ) %>%
+  ungroup() %>%
   arrange(desc(average)) %>%
-  slice_head(n = 10) %>%
-  ungroup()
-write.csv(simper_chronoDRGM_top10, "18s_simper_chronDRGM_top10.csv", row.names = FALSE)
+  slice_head(n = 10)
+write.csv(simper_chronoDRGM_top10, "18s_simper_chronDRGM_top10all.csv", row.names = FALSE)
 
 #subset by treatment
 
