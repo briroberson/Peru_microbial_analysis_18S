@@ -206,25 +206,29 @@ ggplot(critter_wet_split2, aes(x = Vicuna.RAI, y = Observed)) +
   scale_color_manual(
     values = c(
       "Low elevation" = "#5D978E",
-      "High elevation" =  "#FFA07A" ),
-    guide = "none") +
+      "High elevation" = "#FFA07A"
+    ),
+    name = "Elevation group"
+  ) +
   scale_fill_manual(
     values = c(
       "Low elevation" = "#5D978E",
-      "High elevation" =  "#FFA07A" ),
-    guide = "none" ) +
-  facet_wrap(~elev_group) +
+      "High elevation" = "#FFA07A"
+    ),
+    guide = "none"
+  ) +
+  #facet_wrap(~elev_group) +
   labs(
     tag = "(b)",
     x = "RAI",
     y = "Eukaryote richness") +
-  geom_text(
-    data = crit_slopes_df,
-    aes(x = -Inf, y = Inf, label = label),
-    hjust = -0.1, vjust = 1.5,
-    inherit.aes = FALSE,
-    fontface = "bold", size = 5
-  ) +
+ # geom_text(
+  #  data = crit_slopes_df,
+  #  aes(x = -Inf, y = Inf, label = label),
+  #  hjust = -0.1, vjust = 1.5,
+   # inherit.aes = FALSE,
+   # fontface = "bold", size = 5
+ # ) +
   theme_bw() +
   theme(strip.text = element_text(face = "bold", size = 16), 
         legend.title = element_text(size = 14, face = "bold"), 
@@ -750,28 +754,41 @@ wetbeta_chrono
 # export figure taxa to BLAST: 
 
 #read in sequences 
-rep_seqs <- read_qza("Peru_18s_0326_rep-seqs.qza")$data
+rep_seqs <- read_qza("18SPeru_rep-seqs.qza")$data
+
 seq_df <- data.frame(
-  ASV = names(rep_seqs),
+  SequenceID = names(rep_seqs),
   Sequence = as.character(rep_seqs),
-  stringsAsFactors = FALSE)
+  stringsAsFactors = FALSE
+)
+
+# Map wet ASV labels to original hash IDs
+asv_mapping <- data.frame(
+  ASV = taxa_names(filt_rare_wet2),
+  SequenceID = taxa_names(filt_rare_phy_18s),
+  stringsAsFactors = FALSE
+)
+
+# Extract taxonomy
+tax_df <- as.data.frame(tax_table(filt_rare_wet2)) %>%
+  tibble::rownames_to_column("ASV")
 
 # Extract PCoA axis scores for each ASV
 axis_df <- spscorW %>%
   dplyr::select(ASV, axis01 = V1, axis02 = V2)
 
-# Join sequences and PCoA axis scores
-chronoW_top10_blast_18s <-simper_chronoW_top10 %>%
-  left_join(seq_df, by = "ASV") %>%
-  left_join(axis_df, by = "ASV")
+# Join SIMPER results, taxonomy, mapping, sequences, and PCoA scores
+chronoW_top10_blast_18s <- simper_chronoW_top10 %>%
+  dplyr::left_join(tax_df, by = "ASV") %>%
+  dplyr::left_join(asv_mapping, by = "ASV") %>%
+  dplyr::left_join(seq_df, by = "SequenceID") %>%
+  dplyr::left_join(axis_df, by = "ASV")
 
-# Export
+# 7. Export
 write.csv(
   chronoW_top10_blast_18s,
-  "chronoW_top10_blast_18s_TOP10_OVERALL.csv",
-  row.names = FALSE
+  "chronoW_top10_blast_18s_TOP10_OVERALL.csv"
 )
-
 
 
 #the geom_segment code is used to add arrows to the plot. currently, it is plotting all

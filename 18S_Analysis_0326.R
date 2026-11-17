@@ -322,8 +322,8 @@ filt_rare_phy<- mirl_phyloseq
 saveRDS(filt_rare_phy, file="filt_rare_phy_18s.rds") #use whatever file path for where you want to save it
 filt_rare_phy_18s<-readRDS("filt_rare_phy_18s.rds")
 
-
-
+filt_rare_phy_18s_2 <- readRDS("filt_rare_phy_18s_2.rds")
+phy_new <- readRDS("filt_rare_phy_18s_0326.rds")
 
 
 
@@ -554,13 +554,95 @@ Anova(m_wet_rich, type='III')
 emmeans(m_wet_rich, pairwise~treatment*soilAge)
 qqnorm(residuals(m_wet_rich))
 
-#use exp to backtransform bc on log scale
+# model comparison
 
-#the coefficients work exactly how we'd expect. at low elevations, controls are move diverse but than
-# at higher elevations, latrines are more diverse. I calculated this by doing the math first and then
-# exp() of the final answer. I added treatment and soil age terms as necessary and then for elevation you multiply
-# the coefficient times the scale(elevation) value (ex. -.34408*1.89) and if it's latrines you do that AND
-# the latrine:elevation coefficient times the scale(elevation) value (ex -.34408*1.89 + .25140*1.89)
+#treatment only: 
+m_wet_rich_trt <- lmer(
+  Observed ~ treatment +
+    (1 | latrine_trt_month) + (1 | latrine),
+  data = metadata_wet
+)
+
+#treatment and soil age: 
+m_wet_rich_soilAge <- lmer(
+  Observed ~ treatment + soilAge +
+    (1 | latrine_trt_month) + (1 | latrine),
+  data = metadata_wet,
+)
+
+#additive treatment, soil age, elevation: 
+m_wet_rich_elev <- lmer(
+  Observed ~ treatment + soilAge + elevation_sc +
+    (1 | latrine_trt_month) + (1 | latrine),
+  data = metadata_wet,
+  REML = FALSE
+)
+
+#treatment x soil age interaction 
+m_wet_rich_soilAge_int <- lmer(
+  Observed ~ treatment * soilAge + elevation_sc +
+    (1 | latrine_trt_month) + (1 | latrine),
+  data = metadata_wet,
+  REML = FALSE
+)
+
+# compare models: 
+anova(
+  m_wet_rich_trt,
+  m_wet_rich_soilAge,
+  m_wet_rich_elev,
+  m_wet_rich_soilAge_int,
+  m_wet_rich
+)
+
+
+# for manuscript: separate LIA W, RGM W, elevation for RGM only -----------
+
+#LIA
+
+metadata_wet_LIA <- metadata_wet %>% 
+  filter(`soilAge`=='lia')
+
+m_wet_rich_LIA <- lmer(Observed ~ treatment + (1|latrine_trt_month) + (1|latrine), data=metadata_wet_LIA)
+summary(m_wet_rich_LIA)
+Anova(m_wet_rich_LIA)
+
+# post-hoc: 
+emm_LIA <- emmeans(m_wet_rich_LIA, pairwise ~ treatment)
+emm_LIA
+
+# model comparison: 
+m_wet_rich_LIA_null <- lmer(Observed ~ 1 + (1|latrine_trt_month) + (1|latrine), data=metadata_wet_LIA)
+anova(m_wet_rich_LIA, m_wet_rich_LIA_null)
+
+
+#RGM
+
+metadata_wet_RGM <- metadata_wet %>% 
+  filter(`soilAge`=='rgm')
+
+m_wet_rich_RGM <- lmer(Observed ~ treatment*elevation_sc + (1|latrine_trt_month) + (1|latrine), data=metadata_wet_RGM)
+summary(m_wet_rich_RGM)
+Anova(m_wet_rich_RGM)
+
+emm_RGM <- emmeans(m_wet_rich_RGM, pairwise ~ treatment)
+emm_RGM
+
+
+# for elevation
+emm_RGM_elev <- emmeans(m_wet_rich_RGM, pairwise ~ treatment * elevation_sc,
+                        at = list(elevation_sc = c(-1, 1)))
+emm_RGM_elev
+emtrends(m_wet_rich_RGM, 
+         pairwise ~ treatment, 
+         var = "elevation_sc")
+
+# model comparison: 
+m_wet_rich_RGM_null <- lmer(Observed ~ treatment + (1|latrine_trt_month) + (1|latrine), data=metadata_wet_RGM)
+anova(m_wet_rich_RGM, m_wet_rich_RGM_null)
+
+
+
 
 #do LIA to see if treatment is significant
 wet_richLIA<- glmer.nb(Observed~treatment*elevation_sc+(1|latrine_trt_month)+(1|latrine), data=metadata_wet_LIA)
@@ -635,10 +717,18 @@ Anova(m_wet_vrai_both, type='III')
 #current working model - no double cameras 
 critter_wet_split2 <- critter_wet_split %>%
   filter(!latrine %in% c("L81-1", "L81-2"))
+# null model 
+m_wet_vrai_both2_null <- lmer(Observed ~ Vicuna.RAI + (1 | latrine),
+                              data = critter_wet_split2)
+summary(m_wet_vrai_both2_null)
+Anova(m_wet_vrai_both2_null, type='III')
+
 m_wet_vrai_both2 <- lmer(Observed ~ Vicuna.RAI * elev_group + (1 | latrine),
                          data = critter_wet_split2)
 summary(m_wet_vrai_both2)
 Anova(m_wet_vrai_both2, type='III')
+# model comparison 
+anova(m_wet_vrai_both2_null, m_wet_vrai_both2)
 
 ggplot(critter_wet_split, aes(x = latrine, y = Observed)) +
   geom_jitter(width = 0.0005) + 
@@ -897,6 +987,26 @@ m_dry_rich<- lmer(Observed~treatment*elevation_sc+(1|latrine_trt_month)+(1|latri
 summary(m_dry_rich)
 Anova(m_dry_rich, type='III')
 qqnorm(residuals(m_dry_rich))
+
+# post hoc emmeans
+
+emm_RGMD <- emmeans(m_dry_rich, pairwise ~ treatment)
+emm_RGMD
+
+
+# for elevation
+emm_RGMD_elev <- emmeans(m_dry_rich, pairwise ~ treatment * elevation_sc,
+                         at = list(elevation_sc = c(-1, 1)))
+emm_RGMD_elev
+emtrends(m_wet_rich_RGM, 
+         pairwise ~ treatment, 
+         var = "elevation_sc")
+
+
+#model comparison
+m_dry_rich_null <- lmer(Observed ~ treatment + (1|latrine_trt_month) + (1|latrine), data=metaDryRGM_both)
+anova(m_dry_rich, m_dry_rich_null)
+
 
 
 ggplot(metaDryRGM_both, aes(x=RAI_vicugna, y=Observed))+
@@ -1533,9 +1643,9 @@ saveRDS(simper_chronoW_top10, file = "18s_simper_chronoW_top10all.rds")
 simper_chronoW_top5 <- readRDS("18s_simper_chronoW_top5.rds")
 write.csv(simper_chronoW_top10, "18s_simper_chronoW_top10.csv", row.names = FALSE)
 
-#join rep-seqz to blast sequences 
+#join rep-seqs to blast sequences 
 #read in sequences 
-rep_seqs <- read_qza("Peru_18s_0326_rep-seqs.qza")$data
+rep_seqs <- read_qza("18SPeru_rep-seqs.qza")$data
 seq_df <- data.frame(
   original = names(rep_seqs),
   Sequence = as.character(rep_seqs),
@@ -1642,10 +1752,15 @@ simper_taxa_chronoWsig_lats <- sig_asvs_chronoW_lats %>%
   left_join(taxachronoW_lats, by = c("ASV" = "ASV"))
 #grab top 10 only 
 simper_chronoW_top10_lats <- simper_taxa_chronoWsig_lats %>%
-  group_by(Comparison) %>%
+  group_by(ASV) %>%
+  slice_max(
+    order_by = average,
+    n = 1,
+    with_ties = FALSE
+  ) %>%
+  ungroup() %>%
   arrange(desc(average)) %>%
-  slice_head(n = 10) %>%
-  ungroup()
+  slice_head(n = 10)
 write.csv(simper_chronoW_top10_lats, "18s_simper_chronoW_top10_lats.csv", row.names = FALSE)
 
 
@@ -1679,13 +1794,55 @@ taxachronoW_cont <- as.data.frame(tax_table(filt_rare_wet2_cont)) %>%
   tibble::rownames_to_column("ASV")
 simper_taxa_chronoWsig_cont <- sig_asvs_chronoW_cont %>%
   left_join(taxachronoW_cont, by = c("ASV" = "ASV"))
+
 #grab top 10 only 
 simper_chronoW_top10_cont <- simper_taxa_chronoWsig_cont %>%
-  group_by(Comparison) %>%
+  group_by(ASV) %>%
+  slice_max(
+    order_by = average,
+    n = 1,
+    with_ties = FALSE
+  ) %>%
+  ungroup() %>%
   arrange(desc(average)) %>%
-  slice_head(n = 10) %>%
-  ungroup()
-write.csv(simper_chronoW_top10_cont, "18s_simper_chronoW_top10_cont.csv", row.names = FALSE)
+  slice_head(n = 10)
+
+#read in sequences 
+rep_seqs <- read_qza("18SPeru_rep-seqs.qza")$data
+
+seq_df <- data.frame(
+  SequenceID = names(rep_seqs),
+  Sequence = as.character(rep_seqs),
+  stringsAsFactors = FALSE
+)
+
+# Map wet ASV labels to original hash IDs
+asv_mapping <- data.frame(
+  ASV = taxa_names(filt_rare_wet2_cont),
+  SequenceID = taxa_names(filt_rare_phy_18s),
+  stringsAsFactors = FALSE
+)
+
+# Extract taxonomy
+tax_df <- as.data.frame(tax_table(filt_rare_wet2_cont)) %>%
+  tibble::rownames_to_column("ASV")
+
+# Join SIMPER results, taxonomy, mapping, sequences, and PCoA scores
+chronoW_top10_REFERENCES_blast_18_TOP10_OVERALL <- simper_chronoW_top10_cont %>%
+  dplyr::left_join(tax_df, by = "ASV") %>%
+  dplyr::left_join(asv_mapping, by = "ASV") %>%
+  dplyr::left_join(seq_df, by = "SequenceID") %>%
+  dplyr::left_join(axis_df, by = "ASV")
+
+# 7. Export
+write.csv(
+  chronoW_top10_blast_18s,
+  "chronoW_top10_blast_18s_TOP10_OVERALL.csv"
+)
+
+
+write.csv(chronoW_top10_REFERENCES_blast_18_TOP10_OVERALL, 
+          "chronoW_top10_REFERENCES_blast_18s_TOP10_OVERALL.csv")
 
 
 
@@ -1887,7 +2044,7 @@ unique(ind_taxaC_Wrgm[!ind_taxaC_Wrgm$Family %in% ind_taxaC_dry$Family,5])
 
 
 
-# Differential Abundance----
+# Differential Abundance----``
 ## Wet RGM Latrine vs Control DA----
 
 RGM2_phy_ASV<- filt_rare_rep2 %>% 
